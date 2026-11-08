@@ -21,13 +21,13 @@ object WallpaperPainter {
         val h = dm.heightPixels
         val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
-        drawBackground(ctx, canvas, w, h)
-        canvas.drawColor(Color.argb(150, 0, 0, 0))
+        val isPhoto = drawBackground(ctx, canvas, w, h)
+        canvas.drawColor(Color.argb(if (isPhoto) 150 else 70, 0, 0, 0))
         drawText(canvas, ayah, w, h, yPercent)
         return bmp
     }
 
-    private fun drawBackground(ctx: Context, canvas: Canvas, w: Int, h: Int) {
+    private fun drawBackground(ctx: Context, canvas: Canvas, w: Int, h: Int): Boolean {
         val names: List<String> = try {
             (ctx.assets.list("backgrounds") ?: emptyArray()).filter { n ->
                 val l = n.lowercase()
@@ -38,14 +38,14 @@ object WallpaperPainter {
         }
 
         if (names.isEmpty()) {
-            drawGradient(canvas, w, h)
-            return
+            BackgroundGenerator.draw(canvas, w, h)
+            return false
         }
 
         val src = decode(ctx, "backgrounds/" + names.random(), w, h)
         if (src == null) {
-            drawGradient(canvas, w, h)
-            return
+            BackgroundGenerator.draw(canvas, w, h)
+            return false
         }
 
         val scale = maxOf(w.toFloat() / src.width, h.toFloat() / src.height)
@@ -54,6 +54,7 @@ object WallpaperPainter {
         val left = (w - dw) / 2f
         val top = (h - dh) / 2f
         canvas.drawBitmap(src, null, RectF(left, top, left + dw, top + dh), Paint(Paint.FILTER_BITMAP_FLAG))
+        return true
     }
 
     private fun decode(ctx: Context, path: String, w: Int, h: Int): Bitmap? {
