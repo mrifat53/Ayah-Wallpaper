@@ -1,6 +1,9 @@
 # Ayah Wallpaper
 
-Android app: new ayah (Arabic, Bangla, English) on the lock screen every hour.
+Android app: a new ayah on the lock screen every hour.
 
-- Add background pictures to: app/src/main/assets/backgrounds/
-- Build: push to GitHub, open Actions tab, download the APK from the finished run.
+- Arabic: alquran.cloud (Uthmani)
+- Bangla: Dr. Abu Bakr Muhammad Zakaria, King Fahd Complex (QuranEnc.com)
+- English: Saheeh International (QuranEnc.com)
+- Backgrounds are drawn in code (no photos).
+- Ads use Google test ids. Replace them before publishing (MANIFEST + TodayActivity.kt).

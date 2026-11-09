@@ -14,10 +14,9 @@ class WallpaperWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, para
 
     override fun doWork(): Result {
         val c = applicationContext
-        val prefs = c.getSharedPreferences("ayah_prefs", Context.MODE_PRIVATE)
-        val ayah = AyahFetcher.next(c) ?: return Result.retry()
-        val y = prefs.getInt("y_percent", 32)
-        val bmp = WallpaperPainter.paint(c, ayah, y)
+        val ayah = AyahSource.next(c) ?: return Result.retry()
+        val dm = c.resources.displayMetrics
+        val bmp = WallpaperPainter.paint(c, ayah, dm.widthPixels, dm.heightPixels, Prefs.yPercent(c), false)
         return try {
             WallpaperManager.getInstance(c).setBitmap(bmp, null, true, WallpaperManager.FLAG_LOCK)
             Result.success()
