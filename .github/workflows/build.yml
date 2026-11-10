@@ -16,7 +16,18 @@ jobs:
         with:
           gradle-version: 8.9
       - name: Build debug APK
-        run: gradle assembleDebug --no-daemon
+        run: |
+          set +e
+          gradle assembleDebug --no-daemon --console=plain > build.log 2>&1
+          code=$?
+          if [ $code -ne 0 ]; then
+            echo "## Build failed. Main errors:" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep -E "^e: |What went wrong|Execution failed|Could not |error:|Caused by|AAPT" -A2 build.log | head -40 >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+          tail -n 60 build.log
+          exit $code
       - uses: actions/upload-artifact@v4
         with:
           name: ayah-wallpaper-apk
