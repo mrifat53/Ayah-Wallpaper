@@ -66,6 +66,16 @@ object I18n {
 
     private val strings: Map<String, Array<String>> = mapOf(
         "title" to arrayOf("আয়াত ওয়ালপেপার", "Ayah Wallpaper", "خلفية الآيات"),
+        "intro" to arrayOf(
+            "ভাষা ও ধরন বাছাই করুন, তারপর নিচে আয়াত আসবে। অন্তত একটা ভাষা চালু রাখুন।",
+            "Choose languages and a category. Ayahs will be picked from your choice every hour.",
+            "اختر اللغات والفئة، وستظهر الآيات من اختيارك كل ساعة."
+        ),
+        "category_hint" to arrayOf(
+            "প্রথমে ধরন বাছুন, তারপর নিচের তালিকা থেকে সূরা, পারা বা বিষয় বেছে নিন।",
+            "Pick the type first, then choose a surah, juz or theme from the list below.",
+            "اختر النوع أولاً، ثم اختر السورة أو الجزء أو الموضوع من القائمة أدناه."
+        ),
         "subtitle" to arrayOf("প্রতি ঘণ্টায় লক স্ক্রিনে নতুন আয়াত", "A new ayah on your lock screen every hour", "آية جديدة على شاشة القفل كل ساعة"),
         "enable" to arrayOf("প্রতি ঘণ্টায় নতুন আয়াত চালু", "Change the ayah every hour", "تغيير الآية كل ساعة"),
         "ui_lang" to arrayOf("অ্যাপের ভাষা", "App language", "لغة التطبيق"),

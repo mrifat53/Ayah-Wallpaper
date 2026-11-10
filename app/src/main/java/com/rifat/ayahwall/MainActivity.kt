@@ -31,7 +31,7 @@ class MainActivity : Activity() {
         tv.text = msg
         tv.textSize = size
         tv.setTextColor(Color.parseColor(color))
-        tv.setPadding(0, dp(10), 0, dp(6))
+        tv.setPadding(0, dp(18), 0, dp(6))
         return tv
     }
 
@@ -56,13 +56,14 @@ class MainActivity : Activity() {
 
         val root = LinearLayout(this)
         root.orientation = LinearLayout.VERTICAL
-        root.setPadding(pad, pad, pad, pad)
+        root.setPadding(pad, pad, pad, dp(60))
         root.setBackgroundColor(Color.parseColor("#0B0B0B"))
         root.fitsSystemWindows = true
         root.layoutDirection = if (lang == "ar") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
 
         root.addView(label(t("title"), 26f, "#FFFFFF"))
         root.addView(label(t("subtitle"), 15f, "#BBBBBB"))
+        root.addView(label(t("intro"), 13f, "#8FD3B0"))
 
         // App language
         root.addView(label(t("ui_lang"), 15f, "#FFFFFF"))
@@ -159,6 +160,7 @@ class MainActivity : Activity() {
         )
         root.addView(paramHolder)
         buildParam()
+        root.addView(label(t("category_hint"), 12f, "#888888"))
 
         // Background style
         root.addView(label(t("style"), 15f, "#FFFFFF"))
