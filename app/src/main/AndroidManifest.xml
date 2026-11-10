@@ -18,7 +18,7 @@
             android:value="ca-app-pub-3940256099942544~3347511713" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".TodayActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,7 +27,7 @@
         </activity>
 
         <activity
-            android:name=".TodayActivity"
+            android:name=".MainActivity"
             android:exported="false" />
 
         <provider

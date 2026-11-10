@@ -76,6 +76,7 @@ object I18n {
             "Pick the type first, then choose a surah, juz or theme from the list below.",
             "اختر النوع أولاً، ثم اختر السورة أو الجزء أو الموضوع من القائمة أدناه."
         ),
+        "menu_settings" to arrayOf("সেটিংস", "Settings", "الإعدادات"),
         "subtitle" to arrayOf("প্রতি ঘণ্টায় লক স্ক্রিনে নতুন আয়াত", "A new ayah on your lock screen every hour", "آية جديدة على شاشة القفل كل ساعة"),
         "enable" to arrayOf("প্রতি ঘণ্টায় নতুন আয়াত চালু", "Change the ayah every hour", "تغيير الآية كل ساعة"),
         "ui_lang" to arrayOf("অ্যাপের ভাষা", "App language", "لغة التطبيق"),
