@@ -238,6 +238,16 @@ object AyahSource {
 
     fun setCurrentFirst(c: Context, a: Ayah) = addHistory(c, a)
 
+    fun counts(c: Context): IntArray? = surahCounts(c)
+
+    // Fetches one exact ayah, for reading in order.
+    fun ordered(c: Context, s: Int, a: Int): Ayah? {
+        val ar = fetchArabic(s, a) ?: return null
+        val bn = fetchTrans("bengali_zakaria", s, a)
+        val en = fetchTrans("english_saheeh", s, a)
+        return Ayah(s, a, ar, bn, en)
+    }
+
     fun isFav(c: Context, a: Ayah): Boolean =
         favorites(c).any { it.surah == a.surah && it.ayah == a.ayah }
 

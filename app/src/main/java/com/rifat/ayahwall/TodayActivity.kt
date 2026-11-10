@@ -111,11 +111,13 @@ class TodayActivity : Activity() {
         pm.menu.add(0, 1, 0, t("menu_settings"))
         pm.menu.add(0, 2, 1, t("about"))
         pm.menu.add(0, 3, 2, t("battery_btn"))
+        pm.menu.add(0, 4, 3, t("menu_feed"))
         pm.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 1 -> startActivity(Intent(this, MainActivity::class.java))
                 2 -> showAbout()
                 3 -> startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+                4 -> startActivity(Intent(this, FeedActivity::class.java))
             }
             true
         }

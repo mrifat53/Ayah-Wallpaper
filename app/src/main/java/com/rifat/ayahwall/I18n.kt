@@ -76,6 +76,9 @@ object I18n {
             "Pick the type first, then choose a surah, juz or theme from the list below.",
             "اختر النوع أولاً، ثم اختر السورة أو الجزء أو الموضوع من القائمة أدناه."
         ),
+        "feed" to arrayOf("আয়াতের ফিড (সূরা ধরে)", "Ayah feed (in order)", "خلاصة الآيات (بالترتيب)"),
+        "feed_end" to arrayOf("কুরআনের শেষ আয়াত পর্যন্ত এসেছ। মাশাআল্লাহ।", "You have reached the last ayah of the Quran.", "وصلت إلى آخر آية في القرآن."),
+        "menu_feed" to arrayOf("আয়াতের ফিড", "Ayah feed", "خلاصة الآيات"),
         "menu_settings" to arrayOf("সেটিংস", "Settings", "الإعدادات"),
         "subtitle" to arrayOf("প্রতি ঘণ্টায় লক স্ক্রিনে নতুন আয়াত", "A new ayah on your lock screen every hour", "آية جديدة على شاشة القفل كل ساعة"),
         "enable" to arrayOf("প্রতি ঘণ্টায় নতুন আয়াত চালু", "Change the ayah every hour", "تغيير الآية كل ساعة"),
