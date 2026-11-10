@@ -84,6 +84,7 @@ class FeedActivity : Activity() {
             if (child != null && child.height - (scroll.height + y) < dp(900)) loadMore()
         }
 
+        outer.addView(BottomNav.build(this, "feed"))
         setContentView(outer)
         loadMore()
     }

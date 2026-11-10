@@ -198,12 +198,6 @@ class MainActivity : Activity() {
         }
         root.addView(now)
 
-        val today = Button(this)
-        today.text = t("today")
-        today.setOnClickListener {
-            startActivity(Intent(this, TodayActivity::class.java))
-        }
-        root.addView(today)
 
         root.addView(label(t("battery_note"), 13f, "#BBBBBB"))
         val battery = Button(this)
@@ -218,6 +212,11 @@ class MainActivity : Activity() {
         val scroll = ScrollView(this)
         scroll.setBackgroundColor(Color.parseColor("#0B0B0B"))
         scroll.addView(root)
-        setContentView(scroll)
+        val outer = LinearLayout(this)
+        outer.orientation = LinearLayout.VERTICAL
+        outer.fitsSystemWindows = true
+        outer.addView(scroll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
+        outer.addView(BottomNav.build(this, "profile"))
+        setContentView(outer)
     }
 }

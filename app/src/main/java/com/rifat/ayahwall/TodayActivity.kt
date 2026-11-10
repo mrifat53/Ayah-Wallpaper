@@ -60,21 +60,7 @@ class TodayActivity : Activity() {
         title.setTextColor(Color.WHITE)
         title.setTypeface(null, Typeface.BOLD)
         bar.addView(title, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-        val menuBtn = Button(this)
-        menuBtn.text = "\u22EE"
-        menuBtn.textSize = 22f
-        menuBtn.setTextColor(Color.WHITE)
-        menuBtn.setBackgroundColor(Color.TRANSPARENT)
-        menuBtn.setOnClickListener { showMenu(menuBtn) }
-        bar.addView(menuBtn)
         outer.addView(bar)
-
-        val scroll = ScrollView(this)
-        content = LinearLayout(this)
-        content.orientation = LinearLayout.VERTICAL
-        content.setPadding(dp(16), 0, dp(16), dp(16))
-        scroll.addView(content)
-        outer.addView(scroll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
 
         // Test banner. Replace with the real AdMob unit id before publishing.
         val adView = AdView(this)
@@ -86,10 +72,19 @@ class TodayActivity : Activity() {
             LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         )
 
+        val scroll = ScrollView(this)
+        content = LinearLayout(this)
+        content.orientation = LinearLayout.VERTICAL
+        content.setPadding(dp(16), 0, dp(16), dp(16))
+        scroll.addView(content)
+        outer.addView(scroll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
+
+
         preview = ImageView(this)
         preview.adjustViewBounds = true
         preview.scaleType = ImageView.ScaleType.FIT_CENTER
 
+        outer.addView(BottomNav.build(this, "home"))
         setContentView(outer)
         render()
         if (AyahSource.current(this) == null) fetchNew()
