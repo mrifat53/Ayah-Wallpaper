@@ -31,12 +31,7 @@ class KhatamActivity : Activity() {
         outer.fitsSystemWindows = true
         outer.layoutDirection = if (lang == "ar") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
 
-        val title = TextView(this)
-        title.text = t("khatam_title")
-        title.textSize = 18f
-        title.setTextColor(Color.WHITE)
-        title.setTypeface(null, Typeface.BOLD)
-        title.setPadding(dp(16), dp(14), dp(16), dp(14))
+        val title = Ui.screenTitle(this, t("khatam_title"))
         outer.addView(title)
 
         val scroll = ScrollView(this)

@@ -30,12 +30,7 @@ class FavoritesActivity : Activity() {
         outer.fitsSystemWindows = true
         outer.layoutDirection = if (lang == "ar") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
 
-        val title = TextView(this)
-        title.text = t("favs_title")
-        title.textSize = 18f
-        title.setTextColor(Color.WHITE)
-        title.setTypeface(null, Typeface.BOLD)
-        title.setPadding(dp(16), dp(14), dp(16), dp(14))
+        val title = Ui.screenTitle(this, t("favs_title"))
         outer.addView(title)
         outer.addView(Ads.banner(this))
 
@@ -60,7 +55,7 @@ class FavoritesActivity : Activity() {
         val favs = AyahSource.favorites(this)
         if (favs.isEmpty()) {
             val tv = TextView(this)
-            tv.text = t("empty")
+            tv.text = t("fav_empty")
             tv.setTextColor(Color.parseColor("#888888"))
             tv.setPadding(0, dp(12), 0, dp(12))
             list.addView(tv)

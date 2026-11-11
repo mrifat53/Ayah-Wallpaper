@@ -6,6 +6,7 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 
@@ -74,5 +75,33 @@ object Ui {
         r.addView(a, lpA)
         r.addView(b, lpB)
         return r
+    }
+
+    // Main action: filled gold
+    fun primary(c: Context, text: String, onClick: () -> Unit): Button {
+        val b = Button(c)
+        b.text = text
+        b.setTextColor(Color.parseColor("#0B0B0B"))
+        b.setTypeface(null, Typeface.BOLD)
+        val bg = GradientDrawable()
+        bg.setColor(Color.parseColor("#D9B65B"))
+        bg.cornerRadius = dp(c, 14).toFloat()
+        b.background = bg
+        b.setOnClickListener { onClick() }
+        return b
+    }
+
+    // Secondary action: outlined green
+    fun outline(c: Context, text: String, onClick: () -> Unit): Button {
+        val b = Button(c)
+        b.text = text
+        b.setTextColor(Color.parseColor("#8FD3B0"))
+        val bg = GradientDrawable()
+        bg.setColor(Color.TRANSPARENT)
+        bg.cornerRadius = dp(c, 14).toFloat()
+        bg.setStroke(dp(c, 2), Color.parseColor("#8FD3B0"))
+        b.background = bg
+        b.setOnClickListener { onClick() }
+        return b
     }
 }

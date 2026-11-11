@@ -175,6 +175,8 @@ class TodayActivity : Activity() {
         }.start()
     }
 
+    private var showMore = false
+
     private fun render() {
         content.removeAllViews()
         val a = AyahSource.current(this)
@@ -188,13 +190,13 @@ class TodayActivity : Activity() {
             content.addView(Ui.card(this, listOf(preview)))
 
             val fav = AyahSource.isFav(this, a)
-            val favBtn = btn(if (fav) t("fav_remove") else t("fav_add")) {
+            val newBtn = Ui.primary(this, t("new_ayah")) { fetchNew() }
+            val favBtn = Ui.outline(this, if (fav) t("fav_remove") else t("fav_add")) {
                 AyahSource.toggleFav(this, a)
                 render()
             }
-            val newBtn = btn(t("new_ayah")) { fetchNew() }
-            val shareBtn = btn(t("share")) { share(a) }
-            val lockBtn = btn(t("lock_set")) {
+            val shareBtn = Ui.outline(this, t("share")) { share(a) }
+            val lockBtn = Ui.outline(this, t("lock_set")) {
                 WallpaperSetter.setLockAsync(this, a) { ok ->
                     Toast.makeText(this, t(if (ok) "lock_done" else "lock_fail"), Toast.LENGTH_SHORT).show()
                 }
@@ -205,22 +207,32 @@ class TodayActivity : Activity() {
             actions.addView(Ui.row(this, shareBtn, lockBtn))
             content.addView(Ui.card(this, listOf(actions)))
         } else {
-            content.addView(Ui.card(this, listOf(tv(t("loading"), 16f, "#BBBBBB", false), btn(t("new_ayah")) { fetchNew() })))
+            content.addView(Ui.card(this, listOf(
+                tv(t("loading"), 16f, "#BBBBBB", false),
+                Ui.primary(this, t("new_ayah")) { fetchNew() }
+            )))
         }
 
         content.addView(Ui.card(this, listOf(prayerCard())))
-        content.addView(Ui.card(this, listOf(picker())))
-        content.addView(Ui.card(this, listOf(sectionBox(t("favorites"), AyahSource.favorites(this)))))
-        content.addView(Ui.card(this, listOf(sectionBox(t("recent"), AyahSource.history(this).take(10)))))
+
+        content.addView(Ui.outline(this, if (showMore) t("more_hide") else t("more_show")) {
+            showMore = !showMore
+            render()
+        })
+        if (showMore) {
+            content.addView(Ui.card(this, listOf(picker())))
+            content.addView(Ui.card(this, listOf(sectionBox(t("favorites"), AyahSource.favorites(this), "fav_empty"))))
+            content.addView(Ui.card(this, listOf(sectionBox(t("recent"), AyahSource.history(this).take(10), "empty"))))
+        }
     }
 
     // A titled list of ayahs, tap one to show it on the home screen
-    private fun sectionBox(title: String, list: List<Ayah>): LinearLayout {
+    private fun sectionBox(title: String, list: List<Ayah>, emptyKey: String): LinearLayout {
         val box = LinearLayout(this)
         box.orientation = LinearLayout.VERTICAL
         box.addView(Ui.heading(this, title))
         if (list.isEmpty()) {
-            box.addView(Ui.body(this, t("empty"), 14f, "#888888"))
+            box.addView(Ui.body(this, t(emptyKey), 14f, "#888888"))
             return box
         }
         val langs = Prefs.langs(this)

@@ -24,7 +24,7 @@ object WallpaperPainter {
             out.add(
                 StaticLayout.Builder.obtain(b.text, 0, b.text.length, p, blockW)
                     .setAlignment(Layout.Alignment.ALIGN_CENTER)
-                    .setLineSpacing(0f, 1.25f)
+                    .setLineSpacing(0f, 1.35f)
                     .build()
             )
         }
