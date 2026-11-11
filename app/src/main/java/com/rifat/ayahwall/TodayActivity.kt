@@ -241,6 +241,162 @@ class TodayActivity : Activity() {
         return box
     }
 
+    private fun loadPrayer(day: String): List<Pair<String, String>>? {
+        val sp = Prefs.sp(this)
+        if (sp.getString("pt_day", "") != day) return null
+        val s = sp.getString("pt_json", null) ?: return null
+        return try {
+            s.split(";").map {
+                val p = it.split("=")
+                Pair(p[0], p[1])
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun savePrayer(day: String, times: List<Pair<String, String>>) {
+        Prefs.sp(this).edit()
+            .putString("pt_day", day)
+            .putString("pt_json", times.joinToString(";") { it.first + "=" + it.second })
+            .apply()
+    }
+
+    private fun refreshPrayer(day: String) {
+        Thread {
+            val loc = PrayerTimes.lastLocation(this)
+            if (loc != null) {
+                val times = PrayerTimes.fetch(loc.latitude, loc.longitude)
+                if (times != null) {
+                    savePrayer(day, times)
+                    PrayerAlarm.scheduleNext(this)
+                    ui.post { render() }
+                }
+            }
+        }.start()
+    }
+
+    private fun prayerCard(): LinearLayout {
+        val box = LinearLayout(this)
+        box.orientation = LinearLayout.VERTICAL
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+        val times = loadPrayer(today)
+
+        if (times == null) {
+            if (!PrayerTimes.hasPermission(this)) {
+                box.addView(Ui.body(this, t("pt_need_loc"), 14f, "#BBBBBB"))
+                box.addView(btn(t("pt_give")) {
+                    requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), 77)
+                })
+            } else {
+                box.addView(Ui.body(this, t("loading"), 14f, "#BBBBBB"))
+                refreshPrayer(today)
+            }
+            return box
+        }
+
+        PrayerAlarm.scheduleNext(this)
+        val sp = Prefs.sp(this)
+        val idx = PrayerTimes.nextIndex(times, Calendar.getInstance())
+        box.addView(Ui.heading(this, t("pt_title")))
+        box.addView(tv(t("pt_" + times[idx].first) + " · " + I18n.digits(times[idx].second, lang), 18f, "#8FD3B0", true))
+
+        val row = LinearLayout(this)
+        row.orientation = LinearLayout.HORIZONTAL
+        for (i in times.indices) {
+            val key = times[i].first
+            val flag = "done_" + today + "_" + key
+            val done = sp.getBoolean(flag, false)
+            val c = TextView(this)
+            c.text = (if (done) "✓ " else "") + t("pt_" + key) + "\n" + I18n.digits(times[i].second, lang)
+            c.gravity = Gravity.CENTER
+            c.textSize = 12f
+            c.setPadding(0, dp(8), 0, dp(8))
+            c.setTextColor(
+                when {
+                    done -> Color.parseColor("#8FD3B0")
+                    i == idx -> Color.WHITE
+                    else -> Color.parseColor("#AAAAAA")
+                }
+            )
+            if (i == idx) c.setTypeface(null, Typeface.BOLD)
+            c.setOnClickListener {
+                Prefs.sp(this).edit().putBoolean(flag, !done).apply()
+                render()
+            }
+            row.addView(c, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        }
+        box.addView(row)
+        box.addView(Ui.body(this, t("pt_tap_hint"), 11f, "#777777"))
+        box.addView(Ui.body(this, t("pt_note"), 11f, "#777777"))
+        return box
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 77) {
+            val today = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+            refreshPrayer(today)
+            render()
+        }
+    }
+
+    // Pick any surah and ayah (for example for prayer) and show it here
+    private fun picker(): LinearLayout {
+        val box = LinearLayout(this)
+        box.orientation = LinearLayout.VERTICAL
+        box.addView(Ui.heading(this, t("pick_title")))
+
+        val surahNames = (1..114).map { "${I18n.digits(it.toString(), lang)}. ${I18n.surahName(lang, it)}" }
+        val surahSpin = Spinner(this)
+        surahSpin.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, surahNames)
+        surahSpin.setSelection(pickS - 1, false)
+        val ayahSpin = Spinner(this)
+
+        fun fillAyahs() {
+            val n = AyahSource.countsCached(this)?.get(pickS - 1) ?: 1
+            val items = (1..n).map { I18n.digits(it.toString(), lang) }
+            ayahSpin.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, items)
+            pickA = pickA.coerceIn(1, n)
+            ayahSpin.setSelection(pickA - 1, false)
+        }
+        fillAyahs()
+
+        surahSpin.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p: AdapterView<*>?, v: View?, pos: Int, id: Long) {
+                if (pos + 1 != pickS) {
+                    pickS = pos + 1
+                    pickA = 1
+                    fillAyahs()
+                }
+            }
+            override fun onNothingSelected(p: AdapterView<*>?) {}
+        }
+        ayahSpin.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p: AdapterView<*>?, v: View?, pos: Int, id: Long) {
+                pickA = pos + 1
+            }
+            override fun onNothingSelected(p: AdapterView<*>?) {}
+        }
+        box.addView(surahSpin)
+        box.addView(ayahSpin)
+
+        box.addView(btn(t("pick_show")) {
+            Thread {
+                val ay = AyahSource.ordered(this, pickS, pickA)
+                ui.post {
+                    if (ay == null) {
+                        Toast.makeText(this, t("no_internet"), Toast.LENGTH_SHORT).show()
+                    } else {
+                        AyahSource.setCurrentFirst(this, ay)
+                        render()
+                    }
+                }
+            }.start()
+        })
+        return box
+    }
+
     private fun fetchNew() {
         Toast.makeText(this, t("loading"), Toast.LENGTH_SHORT).show()
         Thread {
