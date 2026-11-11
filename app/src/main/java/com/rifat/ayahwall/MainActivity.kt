@@ -66,6 +66,7 @@ class MainActivity : Activity() {
         root.addView(label(t("intro"), 13f, "#8FD3B0"))
 
         // App language
+        root.addView(Ads.banner(this))
         root.addView(label(t("ui_lang"), 15f, "#FFFFFF"))
         val row = LinearLayout(this)
         row.orientation = LinearLayout.HORIZONTAL

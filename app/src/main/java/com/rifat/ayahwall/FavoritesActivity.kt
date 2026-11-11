@@ -37,6 +37,7 @@ class FavoritesActivity : Activity() {
         title.setTypeface(null, Typeface.BOLD)
         title.setPadding(dp(16), dp(14), dp(16), dp(14))
         outer.addView(title)
+        outer.addView(Ads.banner(this))
 
         val scroll = ScrollView(this)
         list = LinearLayout(this)

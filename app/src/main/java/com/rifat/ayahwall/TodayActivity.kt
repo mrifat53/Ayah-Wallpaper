@@ -28,6 +28,11 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
 import java.io.File
+import android.Manifest
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 import java.io.FileOutputStream
 
 class TodayActivity : Activity() {
@@ -199,9 +204,94 @@ class TodayActivity : Activity() {
             content.addView(btn(t("new_ayah")) { fetchNew() })
         }
 
+        content.addView(prayerCard())
         content.addView(picker())
         section(t("favorites"), AyahSource.favorites(this))
         section(t("recent"), AyahSource.history(this).take(10))
+    }
+
+    private fun loadPrayer(day: String): List<Pair<String, String>>? {
+        val sp = Prefs.sp(this)
+        if (sp.getString("pt_day", "") != day) return null
+        val s = sp.getString("pt_json", null) ?: return null
+        return try {
+            s.split(";").map {
+                val p = it.split("=")
+                Pair(p[0], p[1])
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun savePrayer(day: String, times: List<Pair<String, String>>) {
+        Prefs.sp(this).edit()
+            .putString("pt_day", day)
+            .putString("pt_json", times.joinToString(";") { it.first + "=" + it.second })
+            .apply()
+    }
+
+    private fun refreshPrayer(day: String) {
+        Thread {
+            val loc = PrayerTimes.lastLocation(this)
+            if (loc != null) {
+                val times = PrayerTimes.fetch(loc.latitude, loc.longitude)
+                if (times != null) {
+                    savePrayer(day, times)
+                    ui.post { render() }
+                }
+            }
+        }.start()
+    }
+
+    private fun prayerCard(): LinearLayout {
+        val box = LinearLayout(this)
+        box.orientation = LinearLayout.VERTICAL
+        box.setPadding(0, dp(8), 0, dp(8))
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+        val times = loadPrayer(today)
+
+        if (times == null) {
+            if (!PrayerTimes.hasPermission(this)) {
+                box.addView(tv(t("pt_need_loc"), 14f, "#BBBBBB", false))
+                box.addView(btn(t("pt_give")) {
+                    requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), 77)
+                })
+            } else {
+                box.addView(tv(t("loading"), 14f, "#BBBBBB", false))
+                refreshPrayer(today)
+            }
+            return box
+        }
+
+        val idx = PrayerTimes.nextIndex(times, Calendar.getInstance())
+        box.addView(tv(t("pt_title"), 16f, "#FFFFFF", true))
+        val next = t("pt_" + times[idx].first) + " · " + I18n.digits(times[idx].second, lang)
+        box.addView(tv(next, 18f, "#8FD3B0", true))
+
+        val row = LinearLayout(this)
+        row.orientation = LinearLayout.HORIZONTAL
+        for (i in times.indices) {
+            val c = TextView(this)
+            c.text = t("pt_" + times[i].first) + "\n" + I18n.digits(times[i].second, lang)
+            c.gravity = Gravity.CENTER
+            c.textSize = 12f
+            c.setTextColor(if (i == idx) Color.parseColor("#8FD3B0") else Color.parseColor("#AAAAAA"))
+            if (i == idx) c.setTypeface(null, Typeface.BOLD)
+            row.addView(c, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        }
+        box.addView(row)
+        box.addView(tv(t("pt_note"), 11f, "#777777", false))
+        return box
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 77) {
+            val today = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+            refreshPrayer(today)
+            render()
+        }
     }
 
     // Pick any surah and ayah (for example for prayer) and show it here
