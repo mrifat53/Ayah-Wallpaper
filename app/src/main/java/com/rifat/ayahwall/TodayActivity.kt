@@ -238,6 +238,7 @@ class TodayActivity : Activity() {
                 val times = PrayerTimes.fetch(loc.latitude, loc.longitude)
                 if (times != null) {
                     savePrayer(day, times)
+                    PrayerAlarm.scheduleNext(this)
                     ui.post { render() }
                 }
             }
@@ -264,23 +265,39 @@ class TodayActivity : Activity() {
             return box
         }
 
+        PrayerAlarm.scheduleNext(this)
+        val sp = Prefs.sp(this)
         val idx = PrayerTimes.nextIndex(times, Calendar.getInstance())
         box.addView(tv(t("pt_title"), 16f, "#FFFFFF", true))
-        val next = t("pt_" + times[idx].first) + " · " + I18n.digits(times[idx].second, lang)
-        box.addView(tv(next, 18f, "#8FD3B0", true))
+        box.addView(tv(t("pt_" + times[idx].first) + " · " + I18n.digits(times[idx].second, lang), 18f, "#8FD3B0", true))
 
         val row = LinearLayout(this)
         row.orientation = LinearLayout.HORIZONTAL
         for (i in times.indices) {
+            val key = times[i].first
+            val flag = "done_" + today + "_" + key
+            val done = sp.getBoolean(flag, false)
             val c = TextView(this)
-            c.text = t("pt_" + times[i].first) + "\n" + I18n.digits(times[i].second, lang)
+            c.text = (if (done) "✓ " else "") + t("pt_" + key) + "\n" + I18n.digits(times[i].second, lang)
             c.gravity = Gravity.CENTER
             c.textSize = 12f
-            c.setTextColor(if (i == idx) Color.parseColor("#8FD3B0") else Color.parseColor("#AAAAAA"))
+            c.setPadding(0, dp(8), 0, dp(8))
+            c.setTextColor(
+                when {
+                    done -> Color.parseColor("#8FD3B0")
+                    i == idx -> Color.WHITE
+                    else -> Color.parseColor("#AAAAAA")
+                }
+            )
             if (i == idx) c.setTypeface(null, Typeface.BOLD)
+            c.setOnClickListener {
+                Prefs.sp(this).edit().putBoolean(flag, !done).apply()
+                render()
+            }
             row.addView(c, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
         }
         box.addView(row)
+        box.addView(tv(t("pt_tap_hint"), 11f, "#777777", false))
         box.addView(tv(t("pt_note"), 11f, "#777777", false))
         return box
     }
@@ -377,6 +394,7 @@ class TodayActivity : Activity() {
         Toast.makeText(this, t("loading"), Toast.LENGTH_SHORT).show()
         Thread {
             val a = AyahSource.next(this)
+            AyahWidget.refreshAll(this)
             ui.post {
                 if (a == null) Toast.makeText(this, t("no_internet"), Toast.LENGTH_SHORT).show()
                 render()

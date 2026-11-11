@@ -3,6 +3,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
@@ -11,7 +12,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+        android:theme="@style/AppTheme">
 
         <!-- Google test AdMob app id. Replace with your own before publishing. -->
         <meta-data
@@ -38,6 +39,25 @@
         <activity
             android:name=".FavoritesActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".KhatamActivity"
+            android:exported="false" />
+
+        <receiver
+            android:name=".PrayerReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".AyahWidget"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/ayah_widget_info" />
+        </receiver>
 
         <provider
             android:name="androidx.core.content.FileProvider"

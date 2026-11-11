@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Build
+import android.content.pm.PackageManager
 import android.provider.Settings
 import android.view.View
 import android.widget.AdapterView
@@ -204,6 +206,31 @@ class MainActivity : Activity() {
         favBtn.text = t("favs_open")
         favBtn.setOnClickListener { startActivity(Intent(this, FavoritesActivity::class.java)) }
         root.addView(favBtn)
+
+        val khBtn = Button(this)
+        khBtn.text = t("khatam")
+        khBtn.setOnClickListener { startActivity(Intent(this, KhatamActivity::class.java)) }
+        root.addView(khBtn)
+
+        val remind = Switch(this)
+        remind.text = t("pt_remind")
+        remind.setTextColor(Color.WHITE)
+        remind.setPadding(0, dp(14), 0, dp(14))
+        remind.isChecked = Prefs.sp(this).getBoolean("pt_remind", false)
+        remind.setOnCheckedChangeListener { _, on ->
+            Prefs.sp(this).edit().putBoolean("pt_remind", on).apply()
+            if (on) {
+                PrayerAlarm.ensureChannel(this)
+                if (Build.VERSION.SDK_INT >= 33 &&
+                    checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(arrayOf("android.permission.POST_NOTIFICATIONS"), 78)
+                }
+                PrayerAlarm.scheduleNext(this)
+            } else {
+                PrayerAlarm.cancel(this)
+            }
+        }
+        root.addView(remind)
 
         root.addView(label(t("battery_note"), 13f, "#BBBBBB"))
         val battery = Button(this)

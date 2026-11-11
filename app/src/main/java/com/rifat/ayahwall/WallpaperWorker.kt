@@ -19,6 +19,7 @@ class WallpaperWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, para
         val bmp = WallpaperPainter.paint(c, ayah, dm.widthPixels, dm.heightPixels, Prefs.yPercent(c), false)
         return try {
             WallpaperManager.getInstance(c).setBitmap(bmp, null, true, WallpaperManager.FLAG_LOCK)
+            AyahWidget.refreshAll(c)
             Result.success()
         } catch (e: Exception) {
             Result.failure()
