@@ -170,6 +170,15 @@ class FeedActivity : Activity() {
         share.setOnClickListener { shareBitmap(bmp) }
         row.addView(share, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
 
+        val lock = Button(this)
+        lock.text = t("lock_set")
+        lock.setOnClickListener {
+            WallpaperSetter.setLockAsync(this, ay) { ok ->
+                Toast.makeText(this, t(if (ok) "lock_done" else "lock_fail"), Toast.LENGTH_SHORT).show()
+            }
+        }
+        row.addView(lock, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+
         list.addView(row)
 
         // One small banner after every few ayahs, never inside the text itself

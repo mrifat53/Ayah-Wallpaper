@@ -76,7 +76,7 @@ object WallpaperPainter {
 
         val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
-        BackgroundGenerator.draw(canvas, w, h, Prefs.style(ctx))
+        BackgroundGenerator.draw(canvas, w, h, Prefs.style(ctx), ayah.surah * 1000L + ayah.ayah)
 
         // Soft dark band behind the text so it is always easy to read
         val bandTop = maxOf(0f, top - h * 0.05f)

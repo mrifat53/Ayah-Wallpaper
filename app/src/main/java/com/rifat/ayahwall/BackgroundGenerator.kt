@@ -17,8 +17,8 @@ import kotlin.math.sin
 // style: 0 = random, 1 = night sky, 2 = pattern, 3 = Kaaba, 4 = green dome, 5 = mihrab, 6 = glowing sky
 object BackgroundGenerator {
 
-    fun draw(canvas: Canvas, w: Int, h: Int, style: Int) {
-        val rnd = Random()
+    fun draw(canvas: Canvas, w: Int, h: Int, style: Int, seed: Long = 0L) {
+        val rnd = Random(seed)
         val st = if (style in 1..6) style else 1 + rnd.nextInt(6)
         when (st) {
             1 -> nightSky(canvas, w, h, rnd)

@@ -199,6 +199,11 @@ class MainActivity : Activity() {
         root.addView(now)
 
 
+        val favBtn = Button(this)
+        favBtn.text = t("favs_open")
+        favBtn.setOnClickListener { startActivity(Intent(this, FavoritesActivity::class.java)) }
+        root.addView(favBtn)
+
         root.addView(label(t("battery_note"), 13f, "#BBBBBB"))
         val battery = Button(this)
         battery.text = t("battery_btn")

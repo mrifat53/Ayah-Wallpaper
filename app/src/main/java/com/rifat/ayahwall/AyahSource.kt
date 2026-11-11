@@ -240,6 +240,13 @@ object AyahSource {
 
     fun counts(c: Context): IntArray? = surahCounts(c)
 
+    fun countsCached(c: Context): IntArray? {
+        val cached = Prefs.sp(c).getString("counts", null) ?: return null
+        val parts = cached.split(",")
+        if (parts.size != 114) return null
+        return IntArray(114) { parts[it].toInt() }
+    }
+
     // Fetches one exact ayah, for reading in order.
     fun ordered(c: Context, s: Int, a: Int): Ayah? {
         val ar = fetchArabic(s, a) ?: return null
