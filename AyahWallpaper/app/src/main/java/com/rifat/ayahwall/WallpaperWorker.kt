@@ -29,9 +29,15 @@ class WallpaperWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, para
         private const val NAME = "ayah_hourly"
 
         fun schedule(c: Context) {
-            val req = PeriodicWorkRequestBuilder<WallpaperWorker>(1, TimeUnit.HOURS).build()
+            val req = PeriodicWorkRequestBuilder<WallpaperWorker>(30, TimeUnit.MINUTES).build()
             WorkManager.getInstance(c)
                 .enqueueUniquePeriodicWork(NAME, ExistingPeriodicWorkPolicy.UPDATE, req)
+        }
+
+        // Keeps the existing schedule if one is already running
+        fun ensure(c: Context) {
+            val req = PeriodicWorkRequestBuilder<WallpaperWorker>(30, TimeUnit.MINUTES).build()
+            WorkManager.getInstance(c).enqueueUniquePeriodicWork(NAME, ExistingPeriodicWorkPolicy.KEEP, req)
         }
 
         fun cancel(c: Context) {

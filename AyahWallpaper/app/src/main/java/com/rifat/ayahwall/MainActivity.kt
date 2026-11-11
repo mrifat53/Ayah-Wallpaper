@@ -66,6 +66,7 @@ class MainActivity : Activity() {
         root.addView(label(t("intro"), 13f, "#8FD3B0"))
 
         // App language
+        root.addView(Ads.banner(this))
         root.addView(label(t("ui_lang"), 15f, "#FFFFFF"))
         val row = LinearLayout(this)
         row.orientation = LinearLayout.HORIZONTAL
@@ -198,6 +199,11 @@ class MainActivity : Activity() {
         }
         root.addView(now)
 
+
+        val favBtn = Button(this)
+        favBtn.text = t("favs_open")
+        favBtn.setOnClickListener { startActivity(Intent(this, FavoritesActivity::class.java)) }
+        root.addView(favBtn)
 
         root.addView(label(t("battery_note"), 13f, "#BBBBBB"))
         val battery = Button(this)
