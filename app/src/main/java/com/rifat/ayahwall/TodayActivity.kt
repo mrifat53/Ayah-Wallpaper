@@ -177,17 +177,44 @@ class TodayActivity : Activity() {
 
     private var showMore = false
 
+    // Small text-only card for the chosen ayah (no big image on the home screen)
+    private fun ayahText(a: Ayah): LinearLayout {
+        val box = LinearLayout(this)
+        box.orientation = LinearLayout.VERTICAL
+        box.gravity = Gravity.CENTER_HORIZONTAL
+        box.addView(Ui.heading(this, t("today")))
+        val langs = Prefs.langs(this)
+        if ("ar" in langs || (a.bangla.isBlank() && a.english.isBlank())) {
+            val ar = tv(a.arabic, 22f, "#E6EDF3", false)
+            ar.gravity = Gravity.CENTER
+            ar.textDirection = View.TEXT_DIRECTION_RTL
+            box.addView(ar)
+        }
+        if ("bn" in langs && a.bangla.isNotBlank()) {
+            val bn = tv(a.bangla, 16f, "#E6EDF3", false)
+            bn.gravity = Gravity.CENTER
+            box.addView(bn)
+        }
+        if ("en" in langs && a.english.isNotBlank()) {
+            val en = tv(a.english, 14f, "#8B949E", false)
+            en.gravity = Gravity.CENTER
+            box.addView(en)
+        }
+        val ref = tv(I18n.ref(lang, a.surah, a.ayah), 12f, "#2EA043", true)
+        ref.gravity = Gravity.CENTER
+        box.addView(ref)
+        return box
+    }
+
+    // Home: prayer times first, then one small ayah, then the surah/ayah picker
     private fun render() {
         content.removeAllViews()
         val a = AyahSource.current(this)
 
+        content.addView(Ui.card(this, listOf(prayerCard())))
+
         if (a != null) {
-            val key = "${a.surah}:${a.ayah}|${Prefs.style(this)}|${Prefs.yPercent(this)}|${Prefs.langs(this).sorted().joinToString(",")}"
-            if (key != previewKey) {
-                previewKey = key
-                renderPreview(key)
-            }
-            content.addView(Ui.card(this, listOf(preview)))
+            content.addView(Ui.card(this, listOf(ayahText(a))))
 
             val fav = AyahSource.isFav(this, a)
             val newBtn = Ui.primary(this, t("new_ayah")) { fetchNew() }
@@ -213,14 +240,13 @@ class TodayActivity : Activity() {
             )))
         }
 
-        content.addView(Ui.card(this, listOf(prayerCard())))
+        content.addView(Ui.card(this, listOf(picker())))
 
         content.addView(Ui.outline(this, if (showMore) t("more_hide") else t("more_show")) {
             showMore = !showMore
             render()
         })
         if (showMore) {
-            content.addView(Ui.card(this, listOf(picker())))
             content.addView(Ui.card(this, listOf(sectionBox(t("favorites"), AyahSource.favorites(this), "fav_empty"))))
             content.addView(Ui.card(this, listOf(sectionBox(t("recent"), AyahSource.history(this).take(10), "empty"))))
         }
@@ -311,7 +337,7 @@ class TodayActivity : Activity() {
         val sp = Prefs.sp(this)
         val idx = PrayerTimes.nextIndex(times, Calendar.getInstance())
         box.addView(Ui.heading(this, t("pt_title")))
-        box.addView(tv(t("pt_" + times[idx].first) + " · " + I18n.digits(times[idx].second, lang), 18f, "#2EA043", true))
+        box.addView(tv(t("pt_" + times[idx].first) + " · " + I18n.digits(times[idx].second, lang), 30f, "#2EA043", true))
 
         val row = LinearLayout(this)
         row.orientation = LinearLayout.HORIZONTAL
