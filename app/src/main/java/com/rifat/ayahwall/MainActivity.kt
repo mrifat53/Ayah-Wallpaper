@@ -17,9 +17,9 @@ import android.widget.ScrollView
 import android.widget.SeekBar
 import android.widget.Spinner
 import android.widget.Switch
-import android.widget.TextView
 import android.widget.Toast
 
+// Settings. Each topic is its own card, in the same order every time.
 class MainActivity : Activity() {
 
     private var lang = "en"
@@ -50,24 +50,21 @@ class MainActivity : Activity() {
         root.layoutDirection = if (lang == "ar") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
 
         root.addView(Ui.screenTitle(this, t("title")))
-        root.addView(Ui.body(this, t("intro"), 13f, "#8FD3B0"))
 
-        // 1. App language
+        // App language
         val langRow = LinearLayout(this)
         langRow.orientation = LinearLayout.HORIZONTAL
         for ((code, name) in listOf("bn" to "বাংলা", "en" to "English", "ar" to "العربية")) {
-            val b = Button(this)
-            b.text = name
-            b.alpha = if (code == lang) 1f else 0.5f
-            b.setOnClickListener {
+            val b = Ui.outline(this, name) {
                 sp.edit().putString("ui_lang", code).apply()
                 recreate()
             }
+            if (code == lang) b.alpha = 1f else b.alpha = 0.55f
             langRow.addView(b, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
         }
         root.addView(Ui.card(this, listOf(Ui.heading(this, t("ui_lang")), langRow)))
 
-        // 2. Ayah settings
+        // Ayah on/off
         val on = Switch(this)
         on.text = t("enable")
         on.setTextColor(Color.WHITE)
@@ -82,7 +79,9 @@ class MainActivity : Activity() {
                 WallpaperWorker.cancel(this)
             }
         }
+        root.addView(Ui.card(this, listOf(on)))
 
+        // Which languages appear on the lock screen
         val langBox = LinearLayout(this)
         langBox.orientation = LinearLayout.VERTICAL
         for ((code, name) in listOf("ar" to t("arabic"), "bn" to t("bangla"), "en" to t("english"))) {
@@ -102,7 +101,9 @@ class MainActivity : Activity() {
             }
             langBox.addView(cb)
         }
+        root.addView(Ui.card(this, listOf(Ui.heading(this, t("content_lang")), langBox)))
 
+        // Which ayahs: category and its choice
         val cats = listOf("all", "surah", "juz", "theme")
         val catNames = listOf(t("cat_all"), t("cat_surah"), t("cat_juz"), t("cat_theme"))
         val paramHolder = LinearLayout(this)
@@ -131,7 +132,9 @@ class MainActivity : Activity() {
             }
         }
         buildParam()
+        root.addView(Ui.card(this, listOf(Ui.heading(this, t("category")), catSpin, paramHolder)))
 
+        // Look: background style, text position, apply now
         val styleNames = listOf(
             t("style_random"), t("style_night"), t("style_pattern"),
             t("style_kaaba"), t("style_dome"), t("style_mihrab"), t("style_aurora")
@@ -139,7 +142,6 @@ class MainActivity : Activity() {
         val styleSpin = spinner(styleNames, Prefs.style(this).coerceIn(0, 6)) { pos ->
             sp.edit().putInt("style", pos).apply()
         }
-
         val bar = SeekBar(this)
         bar.max = 55
         bar.progress = (Prefs.yPercent(this) - 15).coerceIn(0, 55)
@@ -151,24 +153,17 @@ class MainActivity : Activity() {
                 sp.edit().putInt("y_percent", v).apply()
             }
         })
-
-        val apply = Button(this)
-        apply.text = t("apply")
-        apply.setOnClickListener {
+        val apply = Ui.primary(this, t("apply")) {
             WallpaperWorker.runNow(this)
             Toast.makeText(this, t("working"), Toast.LENGTH_SHORT).show()
         }
-
         root.addView(Ui.card(this, listOf(
-            Ui.heading(this, t("enable")), on,
-            Ui.heading(this, t("content_lang")), langBox,
-            Ui.heading(this, t("category")), catSpin, paramHolder,
             Ui.heading(this, t("style")), styleSpin,
             Ui.heading(this, t("position")), bar,
             apply
         )))
 
-        // 3. Prayer
+        // Prayer
         val remind = Switch(this)
         remind.text = t("pt_remind")
         remind.setTextColor(Color.WHITE)
@@ -186,36 +181,36 @@ class MainActivity : Activity() {
                 PrayerAlarm.cancel(this)
             }
         }
-        root.addView(Ui.card(this, listOf(Ui.heading(this, t("pt_title")), remind)))
+        val prayerItems = mutableListOf<View>(Ui.heading(this, t("pt_title")), remind)
+        if (!PrayerTimes.hasPermission(this)) {
+            prayerItems.add(Ui.outline(this, t("pt_give")) {
+                requestPermissions(arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION), 77)
+            })
+        }
+        root.addView(Ui.card(this, prayerItems))
 
-        // 4. More
-        val favBtn = Button(this)
-        favBtn.text = t("favs_open")
-        favBtn.setOnClickListener { startActivity(Intent(this, FavoritesActivity::class.java)) }
-        val khBtn = Button(this)
-        khBtn.text = t("khatam")
-        khBtn.setOnClickListener { startActivity(Intent(this, KhatamActivity::class.java)) }
-        val batBtn = Button(this)
-        batBtn.text = t("battery_btn")
-        batBtn.setOnClickListener {
+        // More pages
+        val favBtn = Ui.outline(this, t("favs_open")) { startActivity(Intent(this, FavoritesActivity::class.java)) }
+        val khBtn = Ui.outline(this, t("khatam")) { startActivity(Intent(this, KhatamActivity::class.java)) }
+        val batBtn = Ui.outline(this, t("battery_btn")) {
             startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
         }
         root.addView(Ui.card(this, listOf(
             Ui.heading(this, t("about")),
-            Ui.row(this, favBtn, khBtn),
-            batBtn,
-            Ui.body(this, t("battery_note"), 13f, "#BBBBBB"),
-            Ui.body(this, t("credits"), 12f, "#888888")
+            favBtn, khBtn, batBtn,
+            Ui.body(this, t("battery_note"), 13f, "#B0B3B8")
         )))
 
-        // Ad sits at the top of the page, away from the bottom bar
+        root.addView(Ui.card(this, listOf(Ui.body(this, t("credits"), 12f, "#8A8D91"))))
+
+        // Ad at the top, away from the bottom bar
         root.addView(Ads.banner(this), 1)
 
         val outer = LinearLayout(this)
         outer.orientation = LinearLayout.VERTICAL
         outer.fitsSystemWindows = true
         val scroll = ScrollView(this)
-        scroll.setBackgroundColor(Color.parseColor("#0B0B0B"))
+        scroll.setBackgroundColor(Color.parseColor("#121314"))
         scroll.addView(root)
         outer.addView(scroll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
         outer.addView(BottomNav.build(this, "profile"))

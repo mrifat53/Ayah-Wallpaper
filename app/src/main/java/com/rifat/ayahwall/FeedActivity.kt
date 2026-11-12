@@ -53,7 +53,7 @@ class FeedActivity : Activity() {
 
         val outer = LinearLayout(this)
         outer.orientation = LinearLayout.VERTICAL
-        outer.setBackgroundColor(Color.parseColor("#0B0B0B"))
+        outer.setBackgroundColor(Color.parseColor("#121314"))
         outer.fitsSystemWindows = true
         outer.layoutDirection = if (lang == "ar") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
 
@@ -68,7 +68,7 @@ class FeedActivity : Activity() {
         outer.addView(scroll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
 
         status = TextView(this)
-        status.setTextColor(Color.parseColor("#BBBBBB"))
+        status.setTextColor(Color.parseColor("#B0B3B8"))
         status.gravity = Gravity.CENTER
         status.setPadding(0, dp(10), 0, dp(10))
         outer.addView(status)

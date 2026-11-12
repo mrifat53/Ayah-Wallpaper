@@ -20,7 +20,7 @@ object Ui {
         box.orientation = LinearLayout.VERTICAL
         box.setPadding(dp(c, 16), dp(c, 14), dp(c, 16), dp(c, 14))
         val bg = GradientDrawable()
-        bg.setColor(Color.parseColor("#141C18"))
+        bg.setColor(Color.parseColor("#1E2022"))
         bg.cornerRadius = dp(c, 18).toFloat()
         box.background = bg
         for (v in views) {
@@ -37,13 +37,13 @@ object Ui {
         val tv = TextView(c)
         tv.text = text
         tv.textSize = 14f
-        tv.setTextColor(Color.parseColor("#8FD3B0"))
+        tv.setTextColor(Color.parseColor("#3DBE8B"))
         tv.setTypeface(null, Typeface.BOLD)
         tv.setPadding(0, dp(c, 6), 0, dp(c, 8))
         return tv
     }
 
-    fun body(c: Context, text: String, size: Float = 14f, color: String = "#DDDDDD"): TextView {
+    fun body(c: Context, text: String, size: Float = 14f, color: String = "#E4E6EB"): TextView {
         val tv = TextView(c)
         tv.text = text
         tv.textSize = size
@@ -81,10 +81,10 @@ object Ui {
     fun primary(c: Context, text: String, onClick: () -> Unit): Button {
         val b = Button(c)
         b.text = text
-        b.setTextColor(Color.parseColor("#0B0B0B"))
+        b.setTextColor(Color.parseColor("#121314"))
         b.setTypeface(null, Typeface.BOLD)
         val bg = GradientDrawable()
-        bg.setColor(Color.parseColor("#D9B65B"))
+        bg.setColor(Color.parseColor("#3DBE8B"))
         bg.cornerRadius = dp(c, 14).toFloat()
         b.background = bg
         b.setOnClickListener { onClick() }
@@ -95,11 +95,11 @@ object Ui {
     fun outline(c: Context, text: String, onClick: () -> Unit): Button {
         val b = Button(c)
         b.text = text
-        b.setTextColor(Color.parseColor("#8FD3B0"))
+        b.setTextColor(Color.parseColor("#3DBE8B"))
         val bg = GradientDrawable()
         bg.setColor(Color.TRANSPARENT)
         bg.cornerRadius = dp(c, 14).toFloat()
-        bg.setStroke(dp(c, 2), Color.parseColor("#8FD3B0"))
+        bg.setStroke(dp(c, 2), Color.parseColor("#3DBE8B"))
         b.background = bg
         b.setOnClickListener { onClick() }
         return b

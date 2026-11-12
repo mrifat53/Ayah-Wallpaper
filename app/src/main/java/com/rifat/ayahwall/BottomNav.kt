@@ -21,7 +21,7 @@ object BottomNav {
         val bar = LinearLayout(activity)
         bar.orientation = LinearLayout.HORIZONTAL
         bar.gravity = Gravity.CENTER_VERTICAL
-        bar.setBackgroundColor(Color.parseColor("#101418"))
+        bar.setBackgroundColor(Color.parseColor("#1E2022"))
         bar.setPadding(dp(6), dp(6), dp(6), dp(8))
 
         val items = listOf(
@@ -39,11 +39,11 @@ object BottomNav {
             col.setPadding(dp(4), dp(if (isFeed) 10 else 8), dp(4), dp(if (isFeed) 10 else 8))
             if (selected) {
                 val bg = GradientDrawable()
-                bg.setColor(Color.parseColor(if (isFeed) "#1B3A2E" else "#1B2A24"))
+                bg.setColor(Color.parseColor(if (isFeed) "#1E2022" else "#1E2022"))
                 bg.cornerRadius = dp(14).toFloat()
                 col.background = bg
             }
-            val color = if (selected) Color.parseColor("#8FD3B0") else Color.parseColor("#9AA5A0")
+            val color = if (selected) Color.parseColor("#3DBE8B") else Color.parseColor("#B0B3B8")
 
             val iv = ImageView(activity)
             iv.setImageResource(icon)
