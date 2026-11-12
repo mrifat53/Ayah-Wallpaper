@@ -62,7 +62,7 @@ class MainActivity : Activity() {
             if (code == lang) b.alpha = 1f else b.alpha = 0.55f
             langRow.addView(b, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
         }
-        root.addView(Ui.card(this, listOf(Ui.heading(this, t("ui_lang")), langRow)))
+        root.addView(Ui.card(this, listOf(Ui.sectionHead(this, R.drawable.ic_translate, t("ui_lang")), langRow)))
 
         // Ayah on/off
         val on = Switch(this)
@@ -101,7 +101,7 @@ class MainActivity : Activity() {
             }
             langBox.addView(cb)
         }
-        root.addView(Ui.card(this, listOf(Ui.heading(this, t("content_lang")), langBox)))
+        root.addView(Ui.card(this, listOf(Ui.sectionHead(this, R.drawable.ic_book, t("content_lang")), langBox)))
 
         // Which ayahs: category and its choice
         val cats = listOf("all", "surah", "juz", "theme")
@@ -132,7 +132,7 @@ class MainActivity : Activity() {
             }
         }
         buildParam()
-        root.addView(Ui.card(this, listOf(Ui.heading(this, t("category")), catSpin, paramHolder)))
+        root.addView(Ui.card(this, listOf(Ui.sectionHead(this, R.drawable.ic_grid, t("category")), catSpin, paramHolder)))
 
         // Look: background style, text position, apply now
         val styleNames = listOf(
@@ -158,8 +158,8 @@ class MainActivity : Activity() {
             Toast.makeText(this, t("working"), Toast.LENGTH_SHORT).show()
         }
         root.addView(Ui.card(this, listOf(
-            Ui.heading(this, t("style")), styleSpin,
-            Ui.heading(this, t("position")), bar,
+            Ui.sectionHead(this, R.drawable.ic_palette, t("style")), styleSpin,
+            Ui.sectionHead(this, R.drawable.ic_text, t("position")), bar,
             apply
         )))
 
@@ -181,7 +181,7 @@ class MainActivity : Activity() {
                 PrayerAlarm.cancel(this)
             }
         }
-        val prayerItems = mutableListOf<View>(Ui.heading(this, t("pt_title")), remind)
+        val prayerItems = mutableListOf<View>(Ui.sectionHead(this, R.drawable.ic_moon, t("pt_title")), remind)
         if (!PrayerTimes.hasPermission(this)) {
             prayerItems.add(Ui.outline(this, t("pt_give")) {
                 requestPermissions(arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION), 77)
@@ -196,12 +196,12 @@ class MainActivity : Activity() {
             startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
         }
         root.addView(Ui.card(this, listOf(
-            Ui.heading(this, t("about")),
+            Ui.sectionHead(this, R.drawable.ic_info, t("about")),
             favBtn, khBtn, batBtn,
-            Ui.body(this, t("battery_note"), 13f, "#B0B3B8")
+            Ui.body(this, t("battery_note"), 13f, "#9FB3A9")
         )))
 
-        root.addView(Ui.card(this, listOf(Ui.body(this, t("credits"), 12f, "#8A8D91"))))
+        root.addView(Ui.card(this, listOf(Ui.body(this, t("credits"), 12f, "#7F9A8F"))))
 
         // Ad at the top, away from the bottom bar
         root.addView(Ads.banner(this), 1)
@@ -210,7 +210,7 @@ class MainActivity : Activity() {
         outer.orientation = LinearLayout.VERTICAL
         outer.fitsSystemWindows = true
         val scroll = ScrollView(this)
-        scroll.setBackgroundColor(Color.parseColor("#121314"))
+        scroll.setBackgroundColor(Color.parseColor("#0E1512"))
         scroll.addView(root)
         outer.addView(scroll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
         outer.addView(BottomNav.build(this, "profile"))

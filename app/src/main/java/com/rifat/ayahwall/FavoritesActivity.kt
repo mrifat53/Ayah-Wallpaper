@@ -26,7 +26,7 @@ class FavoritesActivity : Activity() {
 
         val outer = LinearLayout(this)
         outer.orientation = LinearLayout.VERTICAL
-        outer.setBackgroundColor(Color.parseColor("#121314"))
+        outer.setBackgroundColor(Color.parseColor("#0E1512"))
         outer.fitsSystemWindows = true
         outer.layoutDirection = if (lang == "ar") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
 
@@ -56,7 +56,7 @@ class FavoritesActivity : Activity() {
         if (favs.isEmpty()) {
             val tv = TextView(this)
             tv.text = t("fav_empty")
-            tv.setTextColor(Color.parseColor("#8A8D91"))
+            tv.setTextColor(Color.parseColor("#7F9A8F"))
             tv.setPadding(0, dp(12), 0, dp(12))
             list.addView(tv)
             return
@@ -72,7 +72,7 @@ class FavoritesActivity : Activity() {
             val tv = TextView(this)
             tv.text = I18n.ref(lang, a.surah, a.ayah) + "\n" + snippet
             tv.textSize = 14f
-            tv.setTextColor(Color.parseColor("#E4E6EB"))
+            tv.setTextColor(Color.parseColor("#F2F5F3"))
             tv.setPadding(0, dp(10), 0, dp(6))
             list.addView(tv)
 

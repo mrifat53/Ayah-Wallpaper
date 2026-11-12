@@ -20,7 +20,7 @@ object Ui {
         box.orientation = LinearLayout.VERTICAL
         box.setPadding(dp(c, 16), dp(c, 14), dp(c, 16), dp(c, 14))
         val bg = GradientDrawable()
-        bg.setColor(Color.parseColor("#1E2022"))
+        bg.setColor(Color.parseColor("#17221D"))
         bg.cornerRadius = dp(c, 18).toFloat()
         box.background = bg
         for (v in views) {
@@ -37,13 +37,13 @@ object Ui {
         val tv = TextView(c)
         tv.text = text
         tv.textSize = 14f
-        tv.setTextColor(Color.parseColor("#3DBE8B"))
+        tv.setTextColor(Color.parseColor("#5FB894"))
         tv.setTypeface(null, Typeface.BOLD)
         tv.setPadding(0, dp(c, 6), 0, dp(c, 8))
         return tv
     }
 
-    fun body(c: Context, text: String, size: Float = 14f, color: String = "#E4E6EB"): TextView {
+    fun body(c: Context, text: String, size: Float = 14f, color: String = "#F2F5F3"): TextView {
         val tv = TextView(c)
         tv.text = text
         tv.textSize = size
@@ -81,10 +81,10 @@ object Ui {
     fun primary(c: Context, text: String, onClick: () -> Unit): Button {
         val b = Button(c)
         b.text = text
-        b.setTextColor(Color.parseColor("#121314"))
+        b.setTextColor(Color.parseColor("#0E1512"))
         b.setTypeface(null, Typeface.BOLD)
         val bg = GradientDrawable()
-        bg.setColor(Color.parseColor("#3DBE8B"))
+        bg.setColor(Color.parseColor("#5FB894"))
         bg.cornerRadius = dp(c, 14).toFloat()
         b.background = bg
         b.setOnClickListener { onClick() }
@@ -95,13 +95,34 @@ object Ui {
     fun outline(c: Context, text: String, onClick: () -> Unit): Button {
         val b = Button(c)
         b.text = text
-        b.setTextColor(Color.parseColor("#3DBE8B"))
+        b.setTextColor(Color.parseColor("#5FB894"))
         val bg = GradientDrawable()
         bg.setColor(Color.TRANSPARENT)
         bg.cornerRadius = dp(c, 14).toFloat()
-        bg.setStroke(dp(c, 2), Color.parseColor("#3DBE8B"))
+        bg.setStroke(dp(c, 2), Color.parseColor("#5FB894"))
         b.background = bg
         b.setOnClickListener { onClick() }
         return b
+    }
+
+    // Icon + title, so every settings group is easy to find at a glance
+    fun sectionHead(c: Context, icon: Int, text: String): LinearLayout {
+        val row = LinearLayout(c)
+        row.orientation = LinearLayout.HORIZONTAL
+        row.gravity = android.view.Gravity.CENTER_VERTICAL
+        row.setPadding(0, dp(c, 4), 0, dp(c, 8))
+        val iv = android.widget.ImageView(c)
+        iv.setImageResource(icon)
+        iv.setColorFilter(Color.parseColor("#5FB894"))
+        row.addView(iv, LinearLayout.LayoutParams(dp(c, 22), dp(c, 22)))
+        val tv = TextView(c)
+        tv.text = text
+        tv.textSize = 15f
+        tv.setTextColor(Color.parseColor("#F2F5F3"))
+        tv.setTypeface(null, Typeface.BOLD)
+        val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        lp.setMargins(dp(c, 10), 0, 0, 0)
+        row.addView(tv, lp)
+        return row
     }
 }
