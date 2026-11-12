@@ -27,7 +27,7 @@ class KhatamActivity : Activity() {
 
         val outer = LinearLayout(this)
         outer.orientation = LinearLayout.VERTICAL
-        outer.setBackgroundColor(Color.parseColor("#0E1512"))
+        outer.setBackgroundColor(Color.parseColor("#0D1117"))
         outer.fitsSystemWindows = true
         outer.layoutDirection = if (lang == "ar") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
 
@@ -72,7 +72,7 @@ class KhatamActivity : Activity() {
         val start = sp.getString("khatam_start", null)
 
         if (start == null) {
-            list.addView(tv(t("khatam_none"), 15f, "#9FB3A9", false))
+            list.addView(tv(t("khatam_none"), 15f, "#8B949E", false))
             list.addView(btn(t("khatam_start")) {
                 sp.edit()
                     .putString("khatam_start", LocalDate.now().toString())
@@ -87,10 +87,10 @@ class KhatamActivity : Activity() {
         val done: Set<String> = sp.getStringSet("khatam_done", emptySet()) ?: emptySet()
 
         list.addView(tv("${t("khatam_day")} ${I18n.digits(dayNo.toString(), lang)} / 30 · ${t("khatam_done_n")} ${I18n.digits(done.size.toString(), lang)}/30", 15f, "#FFFFFF", true))
-        if (done.size >= 30) list.addView(tv(t("khatam_finished"), 15f, "#5FB894", true))
+        if (done.size >= 30) list.addView(tv(t("khatam_finished"), 15f, "#2EA043", true))
 
         val juzText = "${t("khatam_today")}: ${t("juz_word")} ${I18n.digits(dayNo.toString(), lang)}"
-        list.addView(tv(juzText, 16f, "#9FB3A9", true))
+        list.addView(tv(juzText, 16f, "#8B949E", true))
 
         val isDone = done.contains(dayNo.toString())
         list.addView(btn(if (isDone) "✓ " + t("khatam_mark") else t("khatam_mark")) {
@@ -114,12 +114,12 @@ class KhatamActivity : Activity() {
                 cell.setPadding(0, dp(10), 0, dp(10))
                 cell.setTextColor(
                     when {
-                        n == dayNo -> Color.parseColor("#0E1512")
-                        done.contains(n.toString()) -> Color.parseColor("#5FB894")
-                        else -> Color.parseColor("#9FB3A9")
+                        n == dayNo -> Color.parseColor("#0D1117")
+                        done.contains(n.toString()) -> Color.parseColor("#2EA043")
+                        else -> Color.parseColor("#8B949E")
                     }
                 )
-                if (n == dayNo) cell.setBackgroundColor(Color.parseColor("#5FB894"))
+                if (n == dayNo) cell.setBackgroundColor(Color.parseColor("#2EA043"))
                 line.addView(cell, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
             }
             list.addView(line)

@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="12dp"
-    android:background="#17221D">
+    android:background="#161B22">
     <TextView
         android:id="@+id/wAr"
         android:layout_width="match_parent"
@@ -22,13 +22,13 @@
         android:gravity="center"
         android:maxLines="3"
         android:ellipsize="end"
-        android:textColor="#F2F5F3"
+        android:textColor="#E6EDF3"
         android:textSize="13sp" />
     <TextView
         android:id="@+id/wRef"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:textColor="#9FB3A9"
+        android:textColor="#8B949E"
         android:textSize="11sp" />
 </LinearLayout>

@@ -10,7 +10,6 @@ import android.provider.Settings
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -19,7 +18,7 @@ import android.widget.Spinner
 import android.widget.Switch
 import android.widget.Toast
 
-// Settings. Each topic is its own card, in the same order every time.
+// Settings as dropdown groups. Tap a group header to open or close it.
 class MainActivity : Activity() {
 
     private var lang = "en"
@@ -39,6 +38,8 @@ class MainActivity : Activity() {
         return sp
     }
 
+    private fun hint(text: String): android.widget.TextView = Ui.body(this, text, 13f, "#8B949E")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lang = Prefs.uiLang(this)
@@ -48,26 +49,14 @@ class MainActivity : Activity() {
         root.orientation = LinearLayout.VERTICAL
         root.setPadding(dp(16), dp(8), dp(16), dp(16))
         root.layoutDirection = if (lang == "ar") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
-
         root.addView(Ui.screenTitle(this, t("title")))
 
-        // App language
-        val langRow = LinearLayout(this)
-        langRow.orientation = LinearLayout.HORIZONTAL
-        for ((code, name) in listOf("bn" to "বাংলা", "en" to "English", "ar" to "العربية")) {
-            val b = Ui.outline(this, name) {
-                sp.edit().putString("ui_lang", code).apply()
-                recreate()
-            }
-            if (code == lang) b.alpha = 1f else b.alpha = 0.55f
-            langRow.addView(b, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-        }
-        root.addView(Ui.card(this, listOf(Ui.sectionHead(this, R.drawable.ic_translate, t("ui_lang")), langRow)))
-
-        // Ayah on/off
+        // ---- Ayah settings (open by default)
+        val ayahBody = LinearLayout(this)
+        ayahBody.orientation = LinearLayout.VERTICAL
         val on = Switch(this)
         on.text = t("enable")
-        on.setTextColor(Color.WHITE)
+        on.setTextColor(Color.parseColor("#E6EDF3"))
         on.isChecked = Prefs.enabled(this)
         on.setOnCheckedChangeListener { _, checked ->
             sp.edit().putBoolean("enabled", checked).apply()
@@ -79,15 +68,13 @@ class MainActivity : Activity() {
                 WallpaperWorker.cancel(this)
             }
         }
-        root.addView(Ui.card(this, listOf(on)))
+        ayahBody.addView(on)
 
-        // Which languages appear on the lock screen
-        val langBox = LinearLayout(this)
-        langBox.orientation = LinearLayout.VERTICAL
+        ayahBody.addView(Ui.heading(this, t("content_lang")))
         for ((code, name) in listOf("ar" to t("arabic"), "bn" to t("bangla"), "en" to t("english"))) {
             val cb = CheckBox(this)
             cb.text = name
-            cb.setTextColor(Color.WHITE)
+            cb.setTextColor(Color.parseColor("#E6EDF3"))
             cb.isChecked = code in Prefs.langs(this)
             cb.setOnCheckedChangeListener { btn, checked ->
                 val cur = Prefs.langs(this).toMutableSet()
@@ -99,16 +86,14 @@ class MainActivity : Activity() {
                     Prefs.setLangs(this, cur)
                 }
             }
-            langBox.addView(cb)
+            ayahBody.addView(cb)
         }
-        root.addView(Ui.card(this, listOf(Ui.sectionHead(this, R.drawable.ic_book, t("content_lang")), langBox)))
 
-        // Which ayahs: category and its choice
+        ayahBody.addView(Ui.heading(this, t("category")))
         val cats = listOf("all", "surah", "juz", "theme")
         val catNames = listOf(t("cat_all"), t("cat_surah"), t("cat_juz"), t("cat_theme"))
         val paramHolder = LinearLayout(this)
         paramHolder.orientation = LinearLayout.VERTICAL
-
         fun buildParam() {
             paramHolder.removeAllViews()
             val cat = Prefs.category(this)
@@ -124,24 +109,26 @@ class MainActivity : Activity() {
                 sp.edit().putInt("cat_param", if (cat == "theme") pos else pos + 1).apply()
             })
         }
-        val catSpin = spinner(catNames, cats.indexOf(Prefs.category(this)).coerceAtLeast(0)) { pos ->
+        ayahBody.addView(spinner(catNames, cats.indexOf(Prefs.category(this)).coerceAtLeast(0)) { pos ->
             val c = cats[pos]
             if (c != Prefs.category(this)) {
                 sp.edit().putString("cat", c).putInt("cat_param", if (c == "theme") 0 else 1).apply()
                 buildParam()
             }
-        }
+        })
         buildParam()
-        root.addView(Ui.card(this, listOf(Ui.sectionHead(this, R.drawable.ic_grid, t("category")), catSpin, paramHolder)))
+        ayahBody.addView(paramHolder)
 
-        // Look: background style, text position, apply now
+        ayahBody.addView(Ui.heading(this, t("style")))
         val styleNames = listOf(
             t("style_random"), t("style_night"), t("style_pattern"),
             t("style_kaaba"), t("style_dome"), t("style_mihrab"), t("style_aurora")
         )
-        val styleSpin = spinner(styleNames, Prefs.style(this).coerceIn(0, 6)) { pos ->
+        ayahBody.addView(spinner(styleNames, Prefs.style(this).coerceIn(0, 6)) { pos ->
             sp.edit().putInt("style", pos).apply()
-        }
+        })
+
+        ayahBody.addView(Ui.heading(this, t("position")))
         val bar = SeekBar(this)
         bar.max = 55
         bar.progress = (Prefs.yPercent(this) - 15).coerceIn(0, 55)
@@ -153,20 +140,19 @@ class MainActivity : Activity() {
                 sp.edit().putInt("y_percent", v).apply()
             }
         })
-        val apply = Ui.primary(this, t("apply")) {
+        ayahBody.addView(bar)
+        ayahBody.addView(Ui.primary(this, t("apply")) {
             WallpaperWorker.runNow(this)
             Toast.makeText(this, t("working"), Toast.LENGTH_SHORT).show()
-        }
-        root.addView(Ui.card(this, listOf(
-            Ui.sectionHead(this, R.drawable.ic_palette, t("style")), styleSpin,
-            Ui.sectionHead(this, R.drawable.ic_text, t("position")), bar,
-            apply
-        )))
+        })
+        root.addView(Ui.dropGroup(this, R.drawable.ic_play, t("g_ayah"), ayahBody, true))
 
-        // Prayer
+        // ---- Prayer
+        val prayerBody = LinearLayout(this)
+        prayerBody.orientation = LinearLayout.VERTICAL
         val remind = Switch(this)
         remind.text = t("pt_remind")
-        remind.setTextColor(Color.WHITE)
+        remind.setTextColor(Color.parseColor("#E6EDF3"))
         remind.isChecked = sp.getBoolean("pt_remind", false)
         remind.setOnCheckedChangeListener { _, checked ->
             sp.edit().putBoolean("pt_remind", checked).apply()
@@ -181,27 +167,51 @@ class MainActivity : Activity() {
                 PrayerAlarm.cancel(this)
             }
         }
-        val prayerItems = mutableListOf<View>(Ui.sectionHead(this, R.drawable.ic_moon, t("pt_title")), remind)
+        prayerBody.addView(remind)
         if (!PrayerTimes.hasPermission(this)) {
-            prayerItems.add(Ui.outline(this, t("pt_give")) {
+            prayerBody.addView(Ui.outline(this, t("pt_give")) {
                 requestPermissions(arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION), 77)
             })
         }
-        root.addView(Ui.card(this, prayerItems))
+        root.addView(Ui.dropGroup(this, R.drawable.ic_moon, t("g_prayer"), prayerBody, false))
 
-        // More pages
-        val favBtn = Ui.outline(this, t("favs_open")) { startActivity(Intent(this, FavoritesActivity::class.java)) }
-        val khBtn = Ui.outline(this, t("khatam")) { startActivity(Intent(this, KhatamActivity::class.java)) }
-        val batBtn = Ui.outline(this, t("battery_btn")) {
-            startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+        // ---- App language
+        val langBody = LinearLayout(this)
+        langBody.orientation = LinearLayout.VERTICAL
+        for ((code, name) in listOf("bn" to "বাংলা", "en" to "English", "ar" to "العربية")) {
+            langBody.addView(Ui.item(this, R.drawable.ic_translate,
+                name + if (code == lang) "  ✓" else "") {
+                sp.edit().putString("ui_lang", code).apply()
+                recreate()
+            })
         }
-        root.addView(Ui.card(this, listOf(
-            Ui.sectionHead(this, R.drawable.ic_info, t("about")),
-            favBtn, khBtn, batBtn,
-            Ui.body(this, t("battery_note"), 13f, "#9FB3A9")
-        )))
+        root.addView(Ui.dropGroup(this, R.drawable.ic_translate, t("g_lang"), langBody, false))
 
-        root.addView(Ui.card(this, listOf(Ui.body(this, t("credits"), 12f, "#7F9A8F"))))
+        // ---- Saved and plan
+        val savedBody = LinearLayout(this)
+        savedBody.orientation = LinearLayout.VERTICAL
+        savedBody.addView(Ui.item(this, R.drawable.ic_star, t("favs_open")) {
+            startActivity(Intent(this, FavoritesActivity::class.java))
+        })
+        savedBody.addView(Ui.item(this, R.drawable.ic_bookmark, t("khatam")) {
+            startActivity(Intent(this, KhatamActivity::class.java))
+        })
+        root.addView(Ui.dropGroup(this, R.drawable.ic_star, t("g_saved"), savedBody, false))
+
+        // ---- Battery
+        val batBody = LinearLayout(this)
+        batBody.orientation = LinearLayout.VERTICAL
+        batBody.addView(Ui.item(this, R.drawable.ic_battery, t("battery_btn")) {
+            startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+        })
+        batBody.addView(hint(t("battery_note")))
+        root.addView(Ui.dropGroup(this, R.drawable.ic_battery, t("g_battery"), batBody, false))
+
+        // ---- About
+        val aboutBody = LinearLayout(this)
+        aboutBody.orientation = LinearLayout.VERTICAL
+        aboutBody.addView(hint(t("credits")))
+        root.addView(Ui.dropGroup(this, R.drawable.ic_info, t("g_about"), aboutBody, false))
 
         // Ad at the top, away from the bottom bar
         root.addView(Ads.banner(this), 1)
@@ -210,7 +220,7 @@ class MainActivity : Activity() {
         outer.orientation = LinearLayout.VERTICAL
         outer.fitsSystemWindows = true
         val scroll = ScrollView(this)
-        scroll.setBackgroundColor(Color.parseColor("#0E1512"))
+        scroll.setBackgroundColor(Color.parseColor("#0D1117"))
         scroll.addView(root)
         outer.addView(scroll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
         outer.addView(BottomNav.build(this, "profile"))

@@ -70,7 +70,7 @@ class TodayActivity : Activity() {
 
         val outer = LinearLayout(this)
         outer.orientation = LinearLayout.VERTICAL
-        outer.setBackgroundColor(Color.parseColor("#0E1512"))
+        outer.setBackgroundColor(Color.parseColor("#0D1117"))
         outer.fitsSystemWindows = true
         outer.layoutDirection = if (lang == "ar") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
 
@@ -208,7 +208,7 @@ class TodayActivity : Activity() {
             content.addView(Ui.card(this, listOf(actions)))
         } else {
             content.addView(Ui.card(this, listOf(
-                tv(t("loading"), 16f, "#9FB3A9", false),
+                tv(t("loading"), 16f, "#8B949E", false),
                 Ui.primary(this, t("new_ayah")) { fetchNew() }
             )))
         }
@@ -232,7 +232,7 @@ class TodayActivity : Activity() {
         box.orientation = LinearLayout.VERTICAL
         box.addView(Ui.heading(this, title))
         if (list.isEmpty()) {
-            box.addView(Ui.body(this, t(emptyKey), 14f, "#7F9A8F"))
+            box.addView(Ui.body(this, t(emptyKey), 14f, "#8B949E"))
             return box
         }
         val langs = Prefs.langs(this)
@@ -243,7 +243,7 @@ class TodayActivity : Activity() {
                 else -> a.english
             }
             val snippet = if (first.length > 90) first.substring(0, 90) + "…" else first
-            val item = Ui.body(this, I18n.ref(lang, a.surah, a.ayah) + "\n" + snippet, 14f, "#F2F5F3")
+            val item = Ui.body(this, I18n.ref(lang, a.surah, a.ayah) + "\n" + snippet, 14f, "#E6EDF3")
             item.setOnClickListener {
                 AyahSource.setCurrentFirst(this, a)
                 render()
@@ -296,12 +296,12 @@ class TodayActivity : Activity() {
 
         if (times == null) {
             if (!PrayerTimes.hasPermission(this)) {
-                box.addView(Ui.body(this, t("pt_need_loc"), 14f, "#9FB3A9"))
+                box.addView(Ui.body(this, t("pt_need_loc"), 14f, "#8B949E"))
                 box.addView(btn(t("pt_give")) {
                     requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), 77)
                 })
             } else {
-                box.addView(Ui.body(this, t("loading"), 14f, "#9FB3A9"))
+                box.addView(Ui.body(this, t("loading"), 14f, "#8B949E"))
                 refreshPrayer(today)
             }
             return box
@@ -311,7 +311,7 @@ class TodayActivity : Activity() {
         val sp = Prefs.sp(this)
         val idx = PrayerTimes.nextIndex(times, Calendar.getInstance())
         box.addView(Ui.heading(this, t("pt_title")))
-        box.addView(tv(t("pt_" + times[idx].first) + " · " + I18n.digits(times[idx].second, lang), 18f, "#5FB894", true))
+        box.addView(tv(t("pt_" + times[idx].first) + " · " + I18n.digits(times[idx].second, lang), 18f, "#2EA043", true))
 
         val row = LinearLayout(this)
         row.orientation = LinearLayout.HORIZONTAL
@@ -326,9 +326,9 @@ class TodayActivity : Activity() {
             c.setPadding(0, dp(8), 0, dp(8))
             c.setTextColor(
                 when {
-                    done -> Color.parseColor("#5FB894")
+                    done -> Color.parseColor("#2EA043")
                     i == idx -> Color.WHITE
-                    else -> Color.parseColor("#9FB3A9")
+                    else -> Color.parseColor("#8B949E")
                 }
             )
             if (i == idx) c.setTypeface(null, Typeface.BOLD)
@@ -339,8 +339,8 @@ class TodayActivity : Activity() {
             row.addView(c, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
         }
         box.addView(row)
-        box.addView(Ui.body(this, t("pt_tap_hint"), 11f, "#7F9A8F"))
-        box.addView(Ui.body(this, t("pt_note"), 11f, "#7F9A8F"))
+        box.addView(Ui.body(this, t("pt_tap_hint"), 11f, "#8B949E"))
+        box.addView(Ui.body(this, t("pt_note"), 11f, "#8B949E"))
         return box
     }
 
