@@ -19,7 +19,7 @@ object BackgroundGenerator {
 
     fun draw(canvas: Canvas, w: Int, h: Int, style: Int, seed: Long = 0L) {
         val rnd = Random(seed)
-        val st = if (style in 1..15) style else 15
+        val st = if (style in 1..16) style else 15
         when (st) {
             1 -> nightSky(canvas, w, h, rnd)
             2 -> pattern(canvas, w, h, rnd)
@@ -30,6 +30,7 @@ object BackgroundGenerator {
             7 -> calligraphy(canvas, w, h, rnd)
             8 -> rug(canvas, w, h, rnd)
             15 -> endless(canvas, w, h, rnd)
+            16 -> arches(canvas, w, h, rnd)
             10 -> floral(canvas, w, h, rnd)
             11 -> goldRibbon(canvas, w, h, rnd)
             12 -> marble(canvas, w, h, rnd)
@@ -836,6 +837,48 @@ object BackgroundGenerator {
                 }
                 p.alpha = 255
             }
+        }
+    }
+
+    // ---------- 16. Arch colonnade in warm light (drawn in code, original) ----------
+
+    private fun arches(canvas: Canvas, w: Int, h: Int, rnd: Random) {
+        val u = w / 1080f
+        vgrad(canvas, w, h, intArrayOf(col("#3A2C1A"), col("#8A6E47"), col("#1A130B")), floatArrayOf(0f, 0.45f, 1f))
+        val vy = h * 0.40f
+        glow(canvas, w * 0.5f, vy, w * 0.7f, col("#FFE3A8"), 150)
+
+        // side pillars
+        val pillar = Paint(Paint.ANTI_ALIAS_FLAG)
+        pillar.color = col("#C8B38E")
+        pillar.alpha = 70
+        for (side in intArrayOf(-1, 1)) {
+            val x = w * 0.5f + side * w * 0.36f
+            canvas.drawRect(x - w * 0.05f, 0f, x + w * 0.05f, h.toFloat(), pillar)
+        }
+
+        // nested arches, getting smaller towards the vanishing point
+        val stroke = Paint(Paint.ANTI_ALIAS_FLAG)
+        stroke.style = Paint.Style.STROKE
+        stroke.color = col("#E8D7B0")
+        val fill = Paint(Paint.ANTI_ALIAS_FLAG)
+        for (i in 0 until 7) {
+            val sc = Math.pow(0.8, i.toDouble()).toFloat()
+            val halfW = w * 0.42f * sc
+            val baseY = vy + (h * 0.98f - vy) * sc
+            val topH = h * 0.55f * sc
+            val path = Path()
+            path.moveTo(w * 0.5f - halfW, baseY)
+            path.lineTo(w * 0.5f - halfW, baseY - topH)
+            path.arcTo(RectF(w * 0.5f - halfW, baseY - topH - halfW, w * 0.5f + halfW, baseY - topH + halfW), 180f, 180f)
+            path.lineTo(w * 0.5f + halfW, baseY)
+            path.close()
+            fill.color = col("#1E150B")
+            fill.alpha = 90 + i * 12
+            canvas.drawPath(path, fill)
+            stroke.strokeWidth = (5f - i * 0.5f).coerceAtLeast(1f) * u
+            stroke.alpha = 200 - i * 20
+            canvas.drawPath(path, stroke)
         }
     }
 }

@@ -46,6 +46,7 @@ class FeedActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Theme.refresh(this)
         lang = Prefs.uiLang(this)
         val sp = Prefs.sp(this)
         nextS = sp.getInt("feed_s", 1)
@@ -53,7 +54,7 @@ class FeedActivity : Activity() {
 
         val outer = LinearLayout(this)
         outer.orientation = LinearLayout.VERTICAL
-        outer.setBackgroundColor(Color.parseColor("#0D1117"))
+        outer.setBackgroundColor(Theme.col("bg"))
         outer.fitsSystemWindows = true
         outer.layoutDirection = if (lang == "ar") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
 
@@ -68,7 +69,7 @@ class FeedActivity : Activity() {
         outer.addView(scroll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
 
         status = TextView(this)
-        status.setTextColor(Color.parseColor("#8B949E"))
+        status.setTextColor(Theme.col("muted"))
         status.gravity = Gravity.CENTER
         status.setPadding(0, dp(10), 0, dp(10))
         outer.addView(status)

@@ -38,10 +38,11 @@ class MainActivity : Activity() {
         return sp
     }
 
-    private fun hint(text: String): android.widget.TextView = Ui.body(this, text, 13f, "#8B949E")
+    private fun hint(text: String): android.widget.TextView = Ui.body(this, text, 13f, Theme.hex("muted"))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Theme.refresh(this)
         lang = Prefs.uiLang(this)
         val sp = Prefs.sp(this)
 
@@ -56,7 +57,7 @@ class MainActivity : Activity() {
         ayahBody.orientation = LinearLayout.VERTICAL
         val on = Switch(this)
         on.text = t("enable")
-        on.setTextColor(Color.parseColor("#E6EDF3"))
+        on.setTextColor(Theme.col("text"))
         on.isChecked = Prefs.enabled(this)
         on.setOnCheckedChangeListener { _, checked ->
             sp.edit().putBoolean("enabled", checked).apply()
@@ -74,7 +75,7 @@ class MainActivity : Activity() {
         for ((code, name) in listOf("ar" to t("arabic"), "bn" to t("bangla"), "en" to t("english"))) {
             val cb = CheckBox(this)
             cb.text = name
-            cb.setTextColor(Color.parseColor("#E6EDF3"))
+            cb.setTextColor(Theme.col("text"))
             cb.isChecked = code in Prefs.langs(this)
             cb.setOnCheckedChangeListener { btn, checked ->
                 val cur = Prefs.langs(this).toMutableSet()
@@ -122,9 +123,9 @@ class MainActivity : Activity() {
         ayahBody.addView(Ui.heading(this, t("style")))
         val styleNames = listOf(
             t("style_random"), t("style_night"), t("style_pattern"),
-            t("style_kaaba"), t("style_dome"), t("style_mihrab"), t("style_aurora"), t("style_calligraphy"), t("style_rug"), t("style_soft"), t("style_floral"), t("style_ribbon"), t("style_marble"), t("style_hills"), t("style_gold_stars"), t("style_endless")
+            t("style_kaaba"), t("style_dome"), t("style_mihrab"), t("style_aurora"), t("style_calligraphy"), t("style_rug"), t("style_soft"), t("style_floral"), t("style_ribbon"), t("style_marble"), t("style_hills"), t("style_gold_stars"), t("style_endless"), t("style_arch")
         )
-        ayahBody.addView(spinner(styleNames, Prefs.style(this).coerceIn(0, 15)) { pos ->
+        ayahBody.addView(spinner(styleNames, Prefs.style(this).coerceIn(0, 16)) { pos ->
             sp.edit().putInt("style", pos).apply()
         })
 
@@ -152,7 +153,7 @@ class MainActivity : Activity() {
         prayerBody.orientation = LinearLayout.VERTICAL
         val remind = Switch(this)
         remind.text = t("pt_remind")
-        remind.setTextColor(Color.parseColor("#E6EDF3"))
+        remind.setTextColor(Theme.col("text"))
         remind.isChecked = sp.getBoolean("pt_remind", false)
         remind.setOnCheckedChangeListener { _, checked ->
             sp.edit().putBoolean("pt_remind", checked).apply()
@@ -220,7 +221,7 @@ class MainActivity : Activity() {
         outer.orientation = LinearLayout.VERTICAL
         outer.fitsSystemWindows = true
         val scroll = ScrollView(this)
-        scroll.setBackgroundColor(Color.parseColor("#0D1117"))
+        scroll.setBackgroundColor(Theme.col("bg"))
         scroll.addView(root)
         outer.addView(scroll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
         outer.addView(BottomNav.build(this, "profile"))

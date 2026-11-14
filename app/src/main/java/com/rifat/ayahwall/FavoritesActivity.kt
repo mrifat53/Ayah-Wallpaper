@@ -22,11 +22,12 @@ class FavoritesActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Theme.refresh(this)
         lang = Prefs.uiLang(this)
 
         val outer = LinearLayout(this)
         outer.orientation = LinearLayout.VERTICAL
-        outer.setBackgroundColor(Color.parseColor("#0D1117"))
+        outer.setBackgroundColor(Theme.col("bg"))
         outer.fitsSystemWindows = true
         outer.layoutDirection = if (lang == "ar") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
 
@@ -56,7 +57,7 @@ class FavoritesActivity : Activity() {
         if (favs.isEmpty()) {
             val tv = TextView(this)
             tv.text = t("fav_empty")
-            tv.setTextColor(Color.parseColor("#8B949E"))
+            tv.setTextColor(Theme.col("muted"))
             tv.setPadding(0, dp(12), 0, dp(12))
             list.addView(tv)
             return
@@ -72,7 +73,7 @@ class FavoritesActivity : Activity() {
             val tv = TextView(this)
             tv.text = I18n.ref(lang, a.surah, a.ayah) + "\n" + snippet
             tv.textSize = 14f
-            tv.setTextColor(Color.parseColor("#E6EDF3"))
+            tv.setTextColor(Theme.col("text"))
             tv.setPadding(0, dp(10), 0, dp(6))
             list.addView(tv)
 

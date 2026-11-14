@@ -131,6 +131,7 @@ object I18n {
         "style_hills" to arrayOf("সবুজ পাহাড়", "Green hills", "تلال خضراء"),
         "style_gold_stars" to arrayOf("সোনালি তারা", "Gold stars", "نجوم ذهبية"),
         "style_endless" to arrayOf("অবিরাম (প্রতি আয়াতে নতুন)", "Endless (new for every ayah)", "لا نهائي (جديد لكل آية)"),
+        "style_arch" to arrayOf("খিলান", "Arches", "أقواس"),
         "menu_settings" to arrayOf("সেটিংস", "Settings", "الإعدادات"),
         "subtitle" to arrayOf("প্রতি ঘণ্টায় লক স্ক্রিনে নতুন আয়াত", "A new ayah on your lock screen every hour", "آية جديدة على شاشة القفل كل ساعة"),
         "enable" to arrayOf("প্রতি ৩০ মিনিটে নতুন আয়াত চালু", "Change the ayah every 30 minutes", "تغيير الآية كل 30 دقيقة"),

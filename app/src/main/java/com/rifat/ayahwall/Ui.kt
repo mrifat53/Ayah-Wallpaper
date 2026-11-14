@@ -20,7 +20,7 @@ object Ui {
         box.orientation = LinearLayout.VERTICAL
         box.setPadding(dp(c, 16), dp(c, 14), dp(c, 16), dp(c, 14))
         val bg = GradientDrawable()
-        bg.setColor(Color.parseColor("#161B22"))
+        bg.setColor(Theme.col("card"))
         bg.cornerRadius = dp(c, 18).toFloat()
         box.background = bg
         for (v in views) {
@@ -37,13 +37,13 @@ object Ui {
         val tv = TextView(c)
         tv.text = text
         tv.textSize = 14f
-        tv.setTextColor(Color.parseColor("#2EA043"))
+        tv.setTextColor(Theme.col("accent"))
         tv.setTypeface(null, Typeface.BOLD)
         tv.setPadding(0, dp(c, 6), 0, dp(c, 8))
         return tv
     }
 
-    fun body(c: Context, text: String, size: Float = 14f, color: String = "#E6EDF3"): TextView {
+    fun body(c: Context, text: String, size: Float = 14f, color: String = Theme.hex("text")): TextView {
         val tv = TextView(c)
         tv.text = text
         tv.textSize = size
@@ -56,7 +56,7 @@ object Ui {
         val tv = TextView(c)
         tv.text = text
         tv.textSize = 20f
-        tv.setTextColor(Color.WHITE)
+        tv.setTextColor(Theme.col("text"))
         tv.setTypeface(null, Typeface.BOLD)
         tv.setPadding(dp(c, 4), dp(c, 14), dp(c, 4), dp(c, 12))
         return tv
@@ -81,10 +81,10 @@ object Ui {
     fun primary(c: Context, text: String, onClick: () -> Unit): Button {
         val b = Button(c)
         b.text = text
-        b.setTextColor(Color.parseColor("#0D1117"))
+        b.setTextColor(Theme.col("bg"))
         b.setTypeface(null, Typeface.BOLD)
         val bg = GradientDrawable()
-        bg.setColor(Color.parseColor("#2EA043"))
+        bg.setColor(Theme.col("accent"))
         bg.cornerRadius = dp(c, 14).toFloat()
         b.background = bg
         b.setOnClickListener { onClick() }
@@ -95,11 +95,11 @@ object Ui {
     fun outline(c: Context, text: String, onClick: () -> Unit): Button {
         val b = Button(c)
         b.text = text
-        b.setTextColor(Color.parseColor("#2EA043"))
+        b.setTextColor(Theme.col("accent"))
         val bg = GradientDrawable()
         bg.setColor(Color.TRANSPARENT)
         bg.cornerRadius = dp(c, 14).toFloat()
-        bg.setStroke(dp(c, 2), Color.parseColor("#2EA043"))
+        bg.setStroke(dp(c, 2), Theme.col("accent"))
         b.background = bg
         b.setOnClickListener { onClick() }
         return b
@@ -113,12 +113,12 @@ object Ui {
         row.setPadding(0, dp(c, 4), 0, dp(c, 8))
         val iv = android.widget.ImageView(c)
         iv.setImageResource(icon)
-        iv.setColorFilter(Color.parseColor("#2EA043"))
+        iv.setColorFilter(Theme.col("accent"))
         row.addView(iv, LinearLayout.LayoutParams(dp(c, 22), dp(c, 22)))
         val tv = TextView(c)
         tv.text = text
         tv.textSize = 15f
-        tv.setTextColor(Color.parseColor("#E6EDF3"))
+        tv.setTextColor(Theme.col("text"))
         tv.setTypeface(null, Typeface.BOLD)
         val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         lp.setMargins(dp(c, 10), 0, 0, 0)
@@ -131,9 +131,9 @@ object Ui {
         val box = LinearLayout(c)
         box.orientation = LinearLayout.VERTICAL
         val bg = GradientDrawable()
-        bg.setColor(Color.parseColor("#161B22"))
+        bg.setColor(Theme.col("card"))
         bg.cornerRadius = dp(c, 12).toFloat()
-        bg.setStroke(dp(c, 1), Color.parseColor("#30363D"))
+        bg.setStroke(dp(c, 1), Theme.col("border"))
         box.background = bg
         val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         lp.setMargins(0, 0, 0, dp(c, 12))
@@ -145,22 +145,22 @@ object Ui {
         head.setPadding(dp(c, 16), dp(c, 14), dp(c, 16), dp(c, 14))
         val iv = android.widget.ImageView(c)
         iv.setImageResource(icon)
-        iv.setColorFilter(Color.parseColor("#2EA043"))
+        iv.setColorFilter(Theme.col("accent"))
         head.addView(iv, LinearLayout.LayoutParams(dp(c, 22), dp(c, 22)))
         val tv = TextView(c)
         tv.text = title
         tv.textSize = 16f
-        tv.setTextColor(Color.parseColor("#E6EDF3"))
+        tv.setTextColor(Theme.col("text"))
         tv.setTypeface(null, Typeface.BOLD)
         val tlp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         tlp.setMargins(dp(c, 14), 0, 0, 0)
         head.addView(tv, tlp)
         val chev = android.widget.ImageView(c)
-        chev.setColorFilter(Color.parseColor("#8B949E"))
+        chev.setColorFilter(Theme.col("muted"))
         head.addView(chev, LinearLayout.LayoutParams(dp(c, 24), dp(c, 24)))
 
         val line = View(c)
-        line.setBackgroundColor(Color.parseColor("#30363D"))
+        line.setBackgroundColor(Theme.col("border"))
         val wrap = LinearLayout(c)
         wrap.orientation = LinearLayout.VERTICAL
         wrap.setPadding(dp(c, 16), dp(c, 12), dp(c, 16), dp(c, 14))
@@ -189,12 +189,12 @@ object Ui {
         row.setPadding(0, dp(c, 10), 0, dp(c, 10))
         val iv = android.widget.ImageView(c)
         iv.setImageResource(icon)
-        iv.setColorFilter(Color.parseColor("#8B949E"))
+        iv.setColorFilter(Theme.col("muted"))
         row.addView(iv, LinearLayout.LayoutParams(dp(c, 22), dp(c, 22)))
         val tv = TextView(c)
         tv.text = label
         tv.textSize = 15f
-        tv.setTextColor(Color.parseColor("#E6EDF3"))
+        tv.setTextColor(Theme.col("text"))
         val tlp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         tlp.setMargins(dp(c, 14), 0, 0, 0)
         row.addView(tv, tlp)
