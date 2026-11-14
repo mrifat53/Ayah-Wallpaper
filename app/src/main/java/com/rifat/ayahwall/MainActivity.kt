@@ -122,9 +122,9 @@ class MainActivity : Activity() {
         ayahBody.addView(Ui.heading(this, t("style")))
         val styleNames = listOf(
             t("style_random"), t("style_night"), t("style_pattern"),
-            t("style_kaaba"), t("style_dome"), t("style_mihrab"), t("style_aurora")
+            t("style_kaaba"), t("style_dome"), t("style_mihrab"), t("style_aurora"), t("style_calligraphy"), t("style_rug"), t("style_soft"), t("style_floral"), t("style_ribbon"), t("style_marble"), t("style_hills"), t("style_gold_stars"), t("style_endless")
         )
-        ayahBody.addView(spinner(styleNames, Prefs.style(this).coerceIn(0, 6)) { pos ->
+        ayahBody.addView(spinner(styleNames, Prefs.style(this).coerceIn(0, 15)) { pos ->
             sp.edit().putInt("style", pos).apply()
         })
 

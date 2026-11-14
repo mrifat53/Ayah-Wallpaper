@@ -4,6 +4,8 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
@@ -175,81 +177,28 @@ class TodayActivity : Activity() {
         }.start()
     }
 
-    private var showMore = false
+    private var heroBg: Bitmap? = null
 
-    // Small text-only card for the chosen ayah (no big image on the home screen)
-    private fun ayahText(a: Ayah): LinearLayout {
+    // Home shows only prayer times, on a generated background (no ayah on this screen)
+    private fun heroCard(): LinearLayout {
         val box = LinearLayout(this)
         box.orientation = LinearLayout.VERTICAL
-        box.gravity = Gravity.CENTER_HORIZONTAL
-        box.addView(Ui.heading(this, t("today")))
-        val langs = Prefs.langs(this)
-        if ("ar" in langs || (a.bangla.isBlank() && a.english.isBlank())) {
-            val ar = tv(a.arabic, 22f, "#E6EDF3", false)
-            ar.gravity = Gravity.CENTER
-            ar.textDirection = View.TEXT_DIRECTION_RTL
-            box.addView(ar)
+        box.setPadding(dp(16), dp(16), dp(16), dp(16))
+        val w = resources.displayMetrics.widthPixels - dp(32)
+        val h = dp(330)
+        if (heroBg == null || heroBg!!.width != w) {
+            val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+            BackgroundGenerator.draw(Canvas(bmp), w, h, 5, 42L)
+            heroBg = bmp
         }
-        if ("bn" in langs && a.bangla.isNotBlank()) {
-            val bn = tv(a.bangla, 16f, "#E6EDF3", false)
-            bn.gravity = Gravity.CENTER
-            box.addView(bn)
-        }
-        if ("en" in langs && a.english.isNotBlank()) {
-            val en = tv(a.english, 14f, "#8B949E", false)
-            en.gravity = Gravity.CENTER
-            box.addView(en)
-        }
-        val ref = tv(I18n.ref(lang, a.surah, a.ayah), 12f, "#2EA043", true)
-        ref.gravity = Gravity.CENTER
-        box.addView(ref)
+        box.background = BitmapDrawable(resources, heroBg)
+        box.addView(prayerCard())
         return box
     }
 
-    // Home: prayer times first, then one small ayah, then the surah/ayah picker
     private fun render() {
         content.removeAllViews()
-        val a = AyahSource.current(this)
-
-        content.addView(Ui.card(this, listOf(prayerCard())))
-
-        if (a != null) {
-            content.addView(Ui.card(this, listOf(ayahText(a))))
-
-            val fav = AyahSource.isFav(this, a)
-            val newBtn = Ui.primary(this, t("new_ayah")) { fetchNew() }
-            val favBtn = Ui.outline(this, if (fav) t("fav_remove") else t("fav_add")) {
-                AyahSource.toggleFav(this, a)
-                render()
-            }
-            val shareBtn = Ui.outline(this, t("share")) { share(a) }
-            val lockBtn = Ui.outline(this, t("lock_set")) {
-                WallpaperSetter.setLockAsync(this, a) { ok ->
-                    Toast.makeText(this, t(if (ok) "lock_done" else "lock_fail"), Toast.LENGTH_SHORT).show()
-                }
-            }
-            val actions = LinearLayout(this)
-            actions.orientation = LinearLayout.VERTICAL
-            actions.addView(Ui.row(this, newBtn, favBtn))
-            actions.addView(Ui.row(this, shareBtn, lockBtn))
-            content.addView(Ui.card(this, listOf(actions)))
-        } else {
-            content.addView(Ui.card(this, listOf(
-                tv(t("loading"), 16f, "#8B949E", false),
-                Ui.primary(this, t("new_ayah")) { fetchNew() }
-            )))
-        }
-
-        content.addView(Ui.card(this, listOf(picker())))
-
-        content.addView(Ui.outline(this, if (showMore) t("more_hide") else t("more_show")) {
-            showMore = !showMore
-            render()
-        })
-        if (showMore) {
-            content.addView(Ui.card(this, listOf(sectionBox(t("favorites"), AyahSource.favorites(this), "fav_empty"))))
-            content.addView(Ui.card(this, listOf(sectionBox(t("recent"), AyahSource.history(this).take(10), "empty"))))
-        }
+        content.addView(heroCard())
     }
 
     // A titled list of ayahs, tap one to show it on the home screen

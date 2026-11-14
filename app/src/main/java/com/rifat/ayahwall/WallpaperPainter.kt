@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Shader
+import android.graphics.Typeface
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
@@ -15,11 +16,12 @@ object WallpaperPainter {
 
     private class Block(val text: String, val size: Float, val color: Int, val gapAfter: Float)
 
-    private fun layoutsFor(blocks: List<Block>, w: Int, blockW: Int, scale: Float): List<StaticLayout> {
+    private fun layoutsFor(blocks: List<Block>, w: Int, blockW: Int, scale: Float, tf: Typeface): List<StaticLayout> {
         val out = ArrayList<StaticLayout>()
         for (b in blocks) {
             val p = TextPaint(Paint.ANTI_ALIAS_FLAG)
             p.color = b.color
+            p.typeface = tf
             p.textSize = b.size * w * scale
             out.add(
                 StaticLayout.Builder.obtain(b.text, 0, b.text.length, p, blockW)
@@ -42,6 +44,7 @@ object WallpaperPainter {
 
     fun paint(ctx: Context, ayah: Ayah, w: Int, h: Int, yPercent: Int, centered: Boolean): Bitmap {
         val langs = Prefs.langs(ctx)
+        val tf = Mood.typeface(ayah)
         val blockW = (w * 0.84f).toInt()
         val x = w * 0.08f
         val boost = if (langs.size == 1) 1.2f else 1f
@@ -62,21 +65,21 @@ object WallpaperPainter {
         }
 
         var scale = 1f
-        var layouts = layoutsFor(blocks, w, blockW, scale)
+        var layouts = layoutsFor(blocks, w, blockW, scale, tf)
         var total = totalHeight(layouts, blocks, scale)
         var top = if (centered) (h - total) / 2f else h * yPercent / 100f
         for (i in 0 until 8) {
             val fits = top + total <= h * 0.92f && (!centered || total <= h * 0.8f)
             if (fits) break
             scale *= 0.9f
-            layouts = layoutsFor(blocks, w, blockW, scale)
+            layouts = layoutsFor(blocks, w, blockW, scale, tf)
             total = totalHeight(layouts, blocks, scale)
             top = if (centered) (h - total) / 2f else h * yPercent / 100f
         }
 
         val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
-        BackgroundGenerator.draw(canvas, w, h, Prefs.style(ctx), ayah.surah * 1000L + ayah.ayah)
+        BackgroundGenerator.draw(canvas, w, h, Mood.styleFor(ayah, Prefs.style(ctx)), ayah.surah * 1000L + ayah.ayah)
 
         // Soft dark band behind the text so it is always easy to read
         val bandTop = maxOf(0f, top - h * 0.05f)

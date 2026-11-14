@@ -19,14 +19,23 @@ object BackgroundGenerator {
 
     fun draw(canvas: Canvas, w: Int, h: Int, style: Int, seed: Long = 0L) {
         val rnd = Random(seed)
-        val st = if (style in 1..6) style else 1 + rnd.nextInt(6)
+        val st = if (style in 1..15) style else 15
         when (st) {
             1 -> nightSky(canvas, w, h, rnd)
             2 -> pattern(canvas, w, h, rnd)
             3 -> kaaba(canvas, w, h, rnd)
             4 -> greenDome(canvas, w, h, rnd)
             5 -> mihrab(canvas, w, h, rnd)
-            else -> aurora(canvas, w, h, rnd)
+            6 -> aurora(canvas, w, h, rnd)
+            7 -> calligraphy(canvas, w, h, rnd)
+            8 -> rug(canvas, w, h, rnd)
+            15 -> endless(canvas, w, h, rnd)
+            10 -> floral(canvas, w, h, rnd)
+            11 -> goldRibbon(canvas, w, h, rnd)
+            12 -> marble(canvas, w, h, rnd)
+            13 -> hills(canvas, w, h, rnd)
+            14 -> goldStars(canvas, w, h, rnd)
+            else -> softTone(canvas, w, h, rnd)
         }
         vignette(canvas, w, h)
     }
@@ -513,5 +522,320 @@ object BackgroundGenerator {
         val moon = Paint(Paint.ANTI_ALIAS_FLAG)
         moon.color = col("#F4E7B8")
         canvas.drawPath(outer, moon)
+    }
+
+    // ---------- 7. Dark calligraphy-style strokes (drawn in code) ----------
+
+    private fun calligraphy(canvas: Canvas, w: Int, h: Int, rnd: Random) {
+        vgrad(canvas, w, h, intArrayOf(col("#050608"), col("#0A0D10"), col("#050608")), null)
+        val p = Paint(Paint.ANTI_ALIAS_FLAG)
+        p.style = Paint.Style.STROKE
+        p.strokeCap = Paint.Cap.ROUND
+        for (i in 0 until 46) {
+            var cx = rnd.nextFloat() * w
+            var cy = rnd.nextFloat() * h
+            val path = Path()
+            path.moveTo(cx, cy)
+            for (k in 0 until 3) {
+                val c1x = cx + (rnd.nextFloat() - 0.5f) * w * 0.5f
+                val c1y = cy + (rnd.nextFloat() - 0.5f) * h * 0.2f
+                val nx = cx + (rnd.nextFloat() - 0.5f) * w * 0.4f
+                val ny = cy + (rnd.nextFloat() - 0.5f) * h * 0.25f
+                path.cubicTo(c1x, c1y, c1x * 0.5f + nx * 0.5f, ny, nx, ny)
+                cx = nx
+                cy = ny
+            }
+            p.strokeWidth = (2f + rnd.nextFloat() * 7f) * w / 1080f
+            val g = 90 + rnd.nextInt(90)
+            p.color = Color.argb(40 + rnd.nextInt(70), g, g, g)
+            canvas.drawPath(path, p)
+        }
+    }
+
+    // ---------- 8. Patterned rug border (drawn in code, original design) ----------
+
+    private fun rug(canvas: Canvas, w: Int, h: Int, rnd: Random) {
+        val u = w / 1080f
+        vgrad(canvas, w, h, intArrayOf(col("#3A0F14"), col("#1A0508")), null)
+        val frame = Paint(Paint.ANTI_ALIAS_FLAG)
+        frame.style = Paint.Style.STROKE
+        frame.color = col("#C9A24B")
+        frame.strokeWidth = 6f * u
+        val inset = w * 0.07f
+        canvas.drawRect(inset, inset * 1.4f, w - inset, h - inset * 1.4f, frame)
+        frame.strokeWidth = 2f * u
+        frame.color = col("#E8D7B0")
+        val in2 = inset + 18f * u
+        canvas.drawRect(in2, in2 * 1.4f, w - in2, h - in2 * 1.4f, frame)
+
+        // repeated diamonds inside the frame
+        val motif = Paint(Paint.ANTI_ALIAS_FLAG)
+        motif.style = Paint.Style.STROKE
+        motif.strokeWidth = 2f * u
+        motif.color = col("#E8D7B0")
+        motif.alpha = 110
+        val step = w * 0.11f
+        var y = in2 * 1.4f + step / 2f
+        var row = 0
+        while (y < h - in2 * 1.4f) {
+            var x = in2 + step / 2f + if (row % 2 == 0) 0f else step / 2f
+            while (x < w - in2) {
+                val path = Path()
+                path.moveTo(x, y - step * 0.36f)
+                path.lineTo(x + step * 0.28f, y)
+                path.lineTo(x, y + step * 0.36f)
+                path.lineTo(x - step * 0.28f, y)
+                path.close()
+                canvas.drawPath(path, motif)
+                x += step
+            }
+            y += step * 0.72f
+            row++
+        }
+    }
+
+    // ---------- 9. Soft tones with a thin frame (drawn in code) ----------
+
+    private fun softTone(canvas: Canvas, w: Int, h: Int, rnd: Random) {
+        val u = w / 1080f
+        vgrad(canvas, w, h, intArrayOf(col("#E9DCD2"), col("#C9B7A6")), null)
+        glow(canvas, w * 0.5f, h * 0.35f, w * 0.9f, col("#FFF8EE"), 150)
+        val frame = Paint(Paint.ANTI_ALIAS_FLAG)
+        frame.style = Paint.Style.STROKE
+        frame.color = col("#8C6F5A")
+        frame.strokeWidth = 2.5f * u
+        val inset = w * 0.06f
+        canvas.drawRect(inset, inset, w - inset, h - inset, frame)
+        frame.strokeWidth = 1f * u
+        canvas.drawRect(inset + 12f * u, inset + 12f * u, w - inset - 12f * u, h - inset - 12f * u, frame)
+    }
+
+    // ---------- 10. Soft flowers (drawn in code) ----------
+
+    private fun floral(canvas: Canvas, w: Int, h: Int, rnd: Random) {
+        val u = w / 1080f
+        vgrad(canvas, w, h, intArrayOf(col("#2B0D17"), col("#120609")), null)
+        val p = Paint(Paint.ANTI_ALIAS_FLAG)
+        val colors = arrayOf("#F2A7B8", "#E58AA0", "#F7D08A", "#FFE3EC")
+        for (i in 0 until 22) {
+            val cx = rnd.nextFloat() * w
+            val cy = rnd.nextFloat() * h
+            val r = (30f + rnd.nextFloat() * 60f) * u
+            val c = col(colors[rnd.nextInt(colors.size)])
+            p.color = Color.argb(60 + rnd.nextInt(70), Color.red(c), Color.green(c), Color.blue(c))
+            for (k in 0 until 6) {
+                canvas.save()
+                canvas.rotate(k * 60f, cx, cy)
+                canvas.drawOval(cx - r * 0.35f, cy - r, cx + r * 0.35f, cy - r * 0.1f, p)
+                canvas.restore()
+            }
+            p.color = col("#F7D08A")
+            p.alpha = 150
+            canvas.drawCircle(cx, cy, r * 0.18f, p)
+            p.alpha = 255
+        }
+    }
+
+    // ---------- 11. Gold ribbons (drawn in code) ----------
+
+    private fun goldRibbon(canvas: Canvas, w: Int, h: Int, rnd: Random) {
+        val u = w / 1080f
+        vgrad(canvas, w, h, intArrayOf(col("#0B1220"), col("#05080F")), null)
+        val p = Paint(Paint.ANTI_ALIAS_FLAG)
+        p.style = Paint.Style.STROKE
+        p.strokeCap = Paint.Cap.ROUND
+        for (i in 0 until 7) {
+            val path = Path()
+            val y0 = h * (0.1f + rnd.nextFloat() * 0.8f)
+            path.moveTo(-50f, y0)
+            path.cubicTo(w * 0.3f, y0 - h * 0.2f, w * 0.7f, y0 + h * 0.2f, w + 50f, y0 + (rnd.nextFloat() - 0.5f) * h * 0.2f)
+            p.strokeWidth = (2f + rnd.nextFloat() * 5f) * u
+            p.color = Color.argb(90 + rnd.nextInt(110), 201, 162, 75)
+            canvas.drawPath(path, p)
+        }
+    }
+
+    // ---------- 12. Marble veins (drawn in code) ----------
+
+    private fun marble(canvas: Canvas, w: Int, h: Int, rnd: Random) {
+        val u = w / 1080f
+        vgrad(canvas, w, h, intArrayOf(col("#F4F1EC"), col("#DCD6CC")), null)
+        val p = Paint(Paint.ANTI_ALIAS_FLAG)
+        p.style = Paint.Style.STROKE
+        p.strokeCap = Paint.Cap.ROUND
+        for (i in 0 until 26) {
+            var cx = rnd.nextFloat() * w
+            var cy = rnd.nextFloat() * h
+            val path = Path()
+            path.moveTo(cx, cy)
+            for (k in 0 until 4) {
+                val nx = cx + (rnd.nextFloat() - 0.5f) * w * 0.5f
+                val ny = cy + (rnd.nextFloat() - 0.5f) * h * 0.25f
+                path.quadTo(cx + (rnd.nextFloat() - 0.5f) * w * 0.4f, cy + (rnd.nextFloat() - 0.5f) * h * 0.2f, nx, ny)
+                cx = nx
+                cy = ny
+            }
+            p.strokeWidth = (1f + rnd.nextFloat() * 4f) * u
+            val g = 90 + rnd.nextInt(60)
+            p.color = Color.argb(40 + rnd.nextInt(60), g, g - 5, g - 10)
+            canvas.drawPath(path, p)
+        }
+    }
+
+    // ---------- 13. Green hills under a soft sky (drawn in code) ----------
+
+    private fun hills(canvas: Canvas, w: Int, h: Int, rnd: Random) {
+        vgrad(canvas, w, h, intArrayOf(col("#7FB6D9"), col("#F3E7C9")), null)
+        val greens = arrayOf("#B9D7A8", "#8DBB7A", "#5E9A5C", "#3B6E45")
+        for (i in 0 until 4) {
+            val p = Paint(Paint.ANTI_ALIAS_FLAG)
+            p.color = col(greens[i])
+            val baseY = h * (0.55f + i * 0.13f)
+            val path = Path()
+            path.moveTo(0f, h.toFloat())
+            path.lineTo(0f, baseY)
+            path.cubicTo(w * 0.25f, baseY - h * (0.06f + rnd.nextFloat() * 0.04f), w * 0.5f, baseY + h * 0.03f, w * 0.75f, baseY - h * 0.02f)
+            path.cubicTo(w * 0.85f, baseY - h * 0.05f, w * 0.95f, baseY, w.toFloat(), baseY - h * 0.01f)
+            path.lineTo(w.toFloat(), h.toFloat())
+            path.close()
+            canvas.drawPath(path, p)
+        }
+    }
+
+    // ---------- 14. Gold stars on navy (drawn in code) ----------
+
+    private fun goldStars(canvas: Canvas, w: Int, h: Int, rnd: Random) {
+        val u = w / 1080f
+        vgrad(canvas, w, h, intArrayOf(col("#0A1A33"), col("#05101F")), null)
+        val p = Paint(Paint.ANTI_ALIAS_FLAG)
+        p.style = Paint.Style.STROKE
+        p.strokeWidth = 2f * u
+        p.color = col("#C9A24B")
+        p.alpha = 110
+        val s = w / 3.5f
+        var y = 0f
+        var row = 0
+        while (y < h + s) {
+            var x = if (row % 2 == 0) 0f else s / 2f
+            while (x < w + s) {
+                starShape(canvas, p, x, y, s * 0.42f)
+                x += s
+            }
+            y += s * 0.5f
+            row++
+        }
+    }
+
+    // ---------- 15. Endless: a new colour family and layout for every ayah ----------
+    // Hue, saturation, brightness and the drawing style all come from the random seed,
+    // so there is no fixed list of backgrounds; every ayah can get a different one.
+
+    private fun hsv(h: Float, s: Float, v: Float, a: Int = 255): Int {
+        val hh = ((h % 360f) + 360f) % 360f
+        val c = Color.HSVToColor(floatArrayOf(hh, s.coerceIn(0f, 1f), v.coerceIn(0f, 1f)))
+        return Color.argb(a, Color.red(c), Color.green(c), Color.blue(c))
+    }
+
+    private fun endless(canvas: Canvas, w: Int, h: Int, rnd: Random) {
+        val u = w / 1080f
+        val hue = rnd.nextFloat() * 360f
+        val dark = 0.10f + rnd.nextFloat() * 0.10f
+        vgrad(canvas, w, h,
+            intArrayOf(hsv(hue, 0.55f, dark), hsv(hue + 25f, 0.65f, dark * 0.45f)), null)
+
+        // soft light spots in the same family
+        for (i in 0 until 3) {
+            glow(canvas, rnd.nextFloat() * w, rnd.nextFloat() * h, w * (0.4f + rnd.nextFloat() * 0.6f),
+                hsv(hue + rnd.nextFloat() * 60f - 30f, 0.5f, 1f), 60 + rnd.nextInt(60))
+        }
+
+        val p = Paint(Paint.ANTI_ALIAS_FLAG)
+        val accent = hsv(hue + 40f + rnd.nextFloat() * 40f, 0.45f + rnd.nextFloat() * 0.3f, 0.85f + rnd.nextFloat() * 0.15f)
+
+        when (rnd.nextInt(5)) {
+            0 -> { // flowing strokes
+                p.style = Paint.Style.STROKE
+                p.strokeCap = Paint.Cap.ROUND
+                for (i in 0 until 30) {
+                    var cx = rnd.nextFloat() * w
+                    var cy = rnd.nextFloat() * h
+                    val path = Path()
+                    path.moveTo(cx, cy)
+                    for (k in 0 until 3) {
+                        val nx = cx + (rnd.nextFloat() - 0.5f) * w * 0.5f
+                        val ny = cy + (rnd.nextFloat() - 0.5f) * h * 0.25f
+                        path.quadTo(cx + (rnd.nextFloat() - 0.5f) * w * 0.4f, cy + (rnd.nextFloat() - 0.5f) * h * 0.2f, nx, ny)
+                        cx = nx
+                        cy = ny
+                    }
+                    p.strokeWidth = (1f + rnd.nextFloat() * 5f) * u
+                    p.color = hsv(hue + rnd.nextFloat() * 50f, 0.4f, 0.9f, 50 + rnd.nextInt(90))
+                    canvas.drawPath(path, p)
+                }
+            }
+            1 -> { // petals
+                p.style = Paint.Style.FILL
+                val n = 6 + rnd.nextInt(6)
+                for (i in 0 until 18) {
+                    val cx = rnd.nextFloat() * w
+                    val cy = rnd.nextFloat() * h
+                    val r = (30f + rnd.nextFloat() * 70f) * u
+                    p.color = hsv(hue + rnd.nextFloat() * 60f, 0.45f, 0.95f, 60 + rnd.nextInt(80))
+                    for (k in 0 until n) {
+                        canvas.save()
+                        canvas.rotate(k * 360f / n, cx, cy)
+                        canvas.drawOval(cx - r * 0.3f, cy - r, cx + r * 0.3f, cy - r * 0.15f, p)
+                        canvas.restore()
+                    }
+                }
+            }
+            2 -> { // ribbons
+                p.style = Paint.Style.STROKE
+                p.strokeCap = Paint.Cap.ROUND
+                for (i in 0 until 8) {
+                    val y0 = h * (0.05f + rnd.nextFloat() * 0.9f)
+                    val path = Path()
+                    path.moveTo(-50f, y0)
+                    path.cubicTo(w * 0.3f, y0 - h * 0.2f, w * 0.7f, y0 + h * 0.2f, w + 50f, y0 + (rnd.nextFloat() - 0.5f) * h * 0.2f)
+                    p.strokeWidth = (2f + rnd.nextFloat() * 6f) * u
+                    p.color = hsv(hue + 30f + rnd.nextFloat() * 40f, 0.5f, 0.95f, 80 + rnd.nextInt(120))
+                    canvas.drawPath(path, p)
+                }
+            }
+            3 -> { // hills
+                for (i in 0 until 4) {
+                    p.style = Paint.Style.FILL
+                    p.color = hsv(hue + i * 12f, 0.5f, 0.35f + i * 0.15f)
+                    val baseY = h * (0.5f + i * 0.14f)
+                    val path = Path()
+                    path.moveTo(0f, h.toFloat())
+                    path.lineTo(0f, baseY)
+                    path.cubicTo(w * 0.25f, baseY - h * (0.05f + rnd.nextFloat() * 0.05f), w * 0.5f, baseY + h * 0.03f, w * 0.75f, baseY - h * 0.02f)
+                    path.cubicTo(w * 0.85f, baseY - h * 0.05f, w * 0.95f, baseY, w.toFloat(), baseY - h * 0.01f)
+                    path.lineTo(w.toFloat(), h.toFloat())
+                    path.close()
+                    canvas.drawPath(path, p)
+                }
+            }
+            else -> { // geometric stars
+                p.style = Paint.Style.STROKE
+                p.strokeWidth = 2f * u
+                p.color = accent
+                p.alpha = 110
+                val sz = w / (2.5f + rnd.nextFloat() * 3f)
+                var y = 0f
+                var row = 0
+                while (y < h + sz) {
+                    var x = if (row % 2 == 0) 0f else sz / 2f
+                    while (x < w + sz) {
+                        starShape(canvas, p, x, y, sz * 0.42f)
+                        x += sz
+                    }
+                    y += sz * 0.5f
+                    row++
+                }
+                p.alpha = 255
+            }
+        }
     }
 }
