@@ -58,7 +58,7 @@ class FeedActivity : Activity() {
         outer.fitsSystemWindows = true
         outer.layoutDirection = if (lang == "ar") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
 
-        val title = Ui.screenTitle(this, t("feed"))
+        val title = Ui.screenTitle(this, t("feed_short"))
         outer.addView(title)
 
         scroll = ScrollView(this)
@@ -147,33 +147,30 @@ class FeedActivity : Activity() {
         iv.setImageBitmap(bmp)
         iv.adjustViewBounds = true
         iv.scaleType = ImageView.ScaleType.FIT_CENTER
+        Ui.round(iv, 18)
         list.addView(iv, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
 
         val row = LinearLayout(this)
         row.orientation = LinearLayout.HORIZONTAL
         row.setPadding(0, dp(6), 0, dp(18))
 
-        val fav = Button(this)
-        fav.text = favText(ay)
+        fun cell(b: Button): Button {
+            val lp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            lp.setMargins(dp(4), 0, dp(4), 0)
+            row.addView(b, lp)
+            return b
+        }
+        val fav = cell(Ui.outline(this, favText(ay)) {})
         fav.setOnClickListener {
             AyahSource.toggleFav(this, ay)
             fav.text = favText(ay)
         }
-        row.addView(fav, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-
-        val share = Button(this)
-        share.text = t("share")
-        share.setOnClickListener { shareBitmap(bmp) }
-        row.addView(share, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-
-        val lock = Button(this)
-        lock.text = t("lock_set")
-        lock.setOnClickListener {
+        cell(Ui.outline(this, t("b_share")) { shareBitmap(bmp) })
+        cell(Ui.primary(this, t("b_lock")) {
             WallpaperSetter.setLockAsync(this, ay) { ok ->
                 Toast.makeText(this, t(if (ok) "lock_done" else "lock_fail"), Toast.LENGTH_SHORT).show()
             }
-        }
-        row.addView(lock, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        })
 
         list.addView(row)
 
@@ -182,14 +179,10 @@ class FeedActivity : Activity() {
     }
 
     private fun favText(ay: Ayah): String =
-        if (AyahSource.isFav(this, ay)) t("fav_remove") else t("fav_add")
+        if (AyahSource.isFav(this, ay)) t("b_saved") else t("b_save")
 
     private fun addBanner() {
-        val adView = AdView(this)
-        adView.setAdSize(AdSize.BANNER)
-        adView.adUnitId = "ca-app-pub-3940256099942544/6300978111"
-        adView.loadAd(AdRequest.Builder().build())
-        list.addView(adView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+        list.addView(Ads.slot(this))
     }
 
     private fun shareBitmap(bmp: Bitmap) {

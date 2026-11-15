@@ -1,5 +1,9 @@
 package com.rifat.ayahwall
 
+import android.view.ViewGroup
+import android.graphics.Shader
+import android.graphics.LinearGradient
+import android.graphics.Paint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
@@ -90,15 +94,6 @@ class TodayActivity : Activity() {
         bar.addView(title, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
         outer.addView(bar)
 
-        // Test banner. Replace with the real AdMob unit id before publishing.
-        val adView = AdView(this)
-        adView.setAdSize(AdSize.BANNER)
-        adView.adUnitId = "ca-app-pub-3940256099942544/6300978111"
-        adView.loadAd(AdRequest.Builder().build())
-        outer.addView(
-            adView,
-            LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        )
 
         val scroll = ScrollView(this)
         content = LinearLayout(this)
@@ -179,27 +174,82 @@ class TodayActivity : Activity() {
     }
 
     private var heroBg: Bitmap? = null
+    private var adSlot: View? = null
 
-    // Home shows only prayer times, on a generated background (no ayah on this screen)
     private fun heroCard(): LinearLayout {
         val box = LinearLayout(this)
         box.orientation = LinearLayout.VERTICAL
-        box.setPadding(dp(16), dp(16), dp(16), dp(16))
+        box.setPadding(dp(20), dp(18), dp(20), dp(18))
         val w = resources.displayMetrics.widthPixels - dp(32)
-        val h = dp(330)
+        val h = dp(420)
         if (heroBg == null || heroBg!!.width != w) {
             val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-            BackgroundGenerator.draw(Canvas(bmp), w, h, 16, 42L)
+            val cv = Canvas(bmp)
+            BackgroundGenerator.draw(cv, w, h, 16, 42L)
+            // Darken the picture so the text on top is always easy to read
+            val shade = Paint()
+            shade.shader = LinearGradient(
+                0f, 0f, 0f, h.toFloat(),
+                intArrayOf(Color.argb(190, 0, 0, 0), Color.argb(110, 0, 0, 0), Color.argb(175, 0, 0, 0)),
+                floatArrayOf(0f, 0.5f, 1f), Shader.TileMode.CLAMP
+            )
+            cv.drawRect(0f, 0f, w.toFloat(), h.toFloat(), shade)
             heroBg = bmp
         }
         box.background = BitmapDrawable(resources, heroBg)
         box.addView(prayerCard())
+        Ui.round(box, 18)
+        val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        lp.setMargins(0, 0, 0, dp(14))
+        box.layoutParams = lp
         return box
     }
 
+    private fun progressBox(): LinearLayout {
+        val sp = Prefs.sp(this)
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+        val n = PrayerTimes.order.count { sp.getBoolean("done_" + today + "_" + it, false) }
+        val box = LinearLayout(this)
+        box.orientation = LinearLayout.VERTICAL
+        box.addView(Ui.heading(this, t("pr_today")))
+        box.addView(tv(I18n.digits("$n/5", lang), 26f, Theme.hex("text"), true))
+        val bar = LinearLayout(this)
+        bar.orientation = LinearLayout.HORIZONTAL
+        for (i in 0 until 5) {
+            val seg = View(this)
+            seg.setBackgroundColor(if (i < n) Theme.col("accent") else Theme.col("border"))
+            val lp = LinearLayout.LayoutParams(0, dp(8), 1f)
+            lp.setMargins(dp(2), dp(6), dp(2), 0)
+            bar.addView(seg, lp)
+        }
+        box.addView(bar)
+        return box
+    }
+
+    private fun quickBox(): LinearLayout {
+        val box = LinearLayout(this)
+        box.orientation = LinearLayout.VERTICAL
+        box.addView(Ui.item(this, R.drawable.ic_book, t("nav_feed")) {
+            startActivity(Intent(this, FeedActivity::class.java))
+        })
+        box.addView(Ui.item(this, R.drawable.ic_star, t("favs_open")) {
+            startActivity(Intent(this, FavoritesActivity::class.java))
+        })
+        box.addView(Ui.item(this, R.drawable.ic_bookmark, t("khatam")) {
+            startActivity(Intent(this, KhatamActivity::class.java))
+        })
+        return box
+    }
+
+    // Home: prayer times with a greeting, today's progress, quick links, one tidy ad
     private fun render() {
         content.removeAllViews()
         content.addView(heroCard())
+        content.addView(Ui.card(this, listOf(progressBox())))
+        content.addView(Ui.card(this, listOf(quickBox())))
+        val slot = adSlot ?: Ads.slot(this).also { adSlot = it }
+        (slot.parent as? ViewGroup)?.removeView(slot)
+        content.addView(slot)
     }
 
     // A titled list of ayahs, tap one to show it on the home screen
@@ -271,13 +321,14 @@ class TodayActivity : Activity() {
         val times = loadPrayer(today)
 
         if (times == null) {
+            box.addView(tv("السلام عليكم", 18f, "#E8C36A", true))
             if (!PrayerTimes.hasPermission(this)) {
-                box.addView(Ui.body(this, t("pt_need_loc"), 14f, "#FFFFFF"))
+                box.addView(tv(t("pt_need_loc"), 14f, "#FFFFFF", false))
                 box.addView(btn(t("pt_give")) {
                     requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), 77)
                 })
             } else {
-                box.addView(Ui.body(this, t("loading"), 14f, "#FFFFFF"))
+                box.addView(tv(t("loading"), 14f, "#FFFFFF", false))
                 refreshPrayer(today)
             }
             return box
@@ -288,10 +339,11 @@ class TodayActivity : Activity() {
         val idx = PrayerTimes.nextIndex(times, Calendar.getInstance())
         val doneFlags = times.map { sp.getBoolean("done_" + today + "_" + it.first, false) }
 
+        box.addView(tv("السلام عليكم", 18f, "#E8C36A", true))
         val dateLine = SimpleDateFormat("EEEE, d MMM", Locale.ENGLISH).format(Date())
-        box.addView(tv(dateLine, 12f, "#F3E6C8", true))
+        box.addView(tv(dateLine, 12f, "#F3E6C8", false))
         box.addView(tv(t("pt_title"), 14f, "#F3E6C8", false))
-        box.addView(tv(t("pt_" + times[idx].first) + " · " + I18n.digits(times[idx].second, lang), 30f, "#FFFFFF", true))
+        box.addView(tv(t("pt_" + times[idx].first) + " · " + I18n.digits(times[idx].second, lang), 32f, "#FFFFFF", true))
 
         val arc = PrayerArcView(
             this,
@@ -299,29 +351,12 @@ class TodayActivity : Activity() {
             times.map { I18n.digits(it.second, lang) },
             idx,
             doneFlags
-        )
-        box.addView(arc, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(140)))
-
-        // Tap a prayer to mark it as prayed
-        val row = LinearLayout(this)
-        row.orientation = LinearLayout.HORIZONTAL
-        for (i in times.indices) {
-            val key = times[i].first
-            val flag = "done_" + today + "_" + key
-            val done = doneFlags[i]
-            val c = TextView(this)
-            c.text = if (done) "✓" else "○"
-            c.gravity = Gravity.CENTER
-            c.textSize = 16f
-            c.setPadding(0, dp(4), 0, dp(4))
-            c.setTextColor(if (done) Color.parseColor("#5FB894") else Color.parseColor("#FFFFFF"))
-            c.setOnClickListener {
-                Prefs.sp(this).edit().putBoolean(flag, !done).apply()
-                render()
-            }
-            row.addView(c, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        ) { i ->
+            val flag = "done_" + today + "_" + times[i].first
+            Prefs.sp(this).edit().putBoolean(flag, !doneFlags[i]).apply()
+            render()
         }
-        box.addView(row)
+        box.addView(arc, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(180)))
         box.addView(tv(t("pt_tap_hint"), 11f, "#D9D0BD", false))
         return box
     }

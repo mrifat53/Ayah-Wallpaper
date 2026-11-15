@@ -81,6 +81,7 @@ object Ui {
     fun primary(c: Context, text: String, onClick: () -> Unit): Button {
         val b = Button(c)
         b.text = text
+        b.isAllCaps = false
         b.setTextColor(Theme.col("bg"))
         b.setTypeface(null, Typeface.BOLD)
         val bg = GradientDrawable()
@@ -95,6 +96,7 @@ object Ui {
     fun outline(c: Context, text: String, onClick: () -> Unit): Button {
         val b = Button(c)
         b.text = text
+        b.isAllCaps = false
         b.setTextColor(Theme.col("accent"))
         val bg = GradientDrawable()
         bg.setColor(Color.TRANSPARENT)
@@ -204,5 +206,29 @@ object Ui {
         }
         if (onClick != null) row.setOnClickListener { onClick() }
         return row
+    }
+
+    fun round(v: View, radiusDp: Int) {
+        val r = v.resources.displayMetrics.density * radiusDp
+        v.clipToOutline = true
+        v.outlineProvider = object : android.view.ViewOutlineProvider() {
+            override fun getOutline(view: View, outline: android.graphics.Outline) {
+                outline.setRoundRect(0, 0, view.width, view.height, r)
+            }
+        }
+    }
+
+    fun tintSwitch(sw: android.widget.Switch) {
+        val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
+        val a = Theme.col("accent")
+        sw.thumbTintList = android.content.res.ColorStateList(states, intArrayOf(a, Theme.col("muted")))
+        sw.trackTintList = android.content.res.ColorStateList(
+            states, intArrayOf(Color.argb(120, Color.red(a), Color.green(a), Color.blue(a)), Theme.col("border"))
+        )
+    }
+
+    fun tintCheck(cb: android.widget.CheckBox) {
+        val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
+        cb.buttonTintList = android.content.res.ColorStateList(states, intArrayOf(Theme.col("accent"), Theme.col("muted")))
     }
 }

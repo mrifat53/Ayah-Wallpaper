@@ -1,5 +1,9 @@
 package com.rifat.ayahwall
 
+import android.text.style.SuperscriptSpan
+import android.text.style.RelativeSizeSpan
+import android.text.Spanned
+import android.text.SpannableStringBuilder
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -16,6 +20,18 @@ object WallpaperPainter {
 
     private class Block(val text: String, val size: Float, val color: Int, val gapAfter: Float)
 
+    private val marker = Regex("\\[[0-9\u09E6-\u09EF]+\\]")
+
+    // Footnote numbers like [1] are shown small and raised. The words are not changed.
+    private fun styled(text: String): CharSequence {
+        val sb = SpannableStringBuilder(text)
+        for (m in marker.findAll(text)) {
+            sb.setSpan(RelativeSizeSpan(0.6f), m.range.first, m.range.last + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            sb.setSpan(SuperscriptSpan(), m.range.first, m.range.last + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+        return sb
+    }
+
     private fun layoutsFor(blocks: List<Block>, w: Int, blockW: Int, scale: Float, tf: Typeface): List<StaticLayout> {
         val out = ArrayList<StaticLayout>()
         for (b in blocks) {
@@ -24,7 +40,7 @@ object WallpaperPainter {
             p.typeface = tf
             p.textSize = b.size * w * scale
             out.add(
-                StaticLayout.Builder.obtain(b.text, 0, b.text.length, p, blockW)
+                StaticLayout.Builder.obtain(styled(b.text), 0, b.text.length, p, blockW)
                     .setAlignment(Layout.Alignment.ALIGN_CENTER)
                     .setLineSpacing(0f, 1.35f)
                     .build()

@@ -146,7 +146,7 @@ object BackgroundGenerator {
 
         val cx = w * (0.4f + rnd.nextFloat() * 0.2f)
         val moonR = w * 0.075f
-        val my = h * 0.70f
+        val my = h * 0.79f
         glow(canvas, cx, my, moonR * 4.5f, col("#FFF0C8"), 85)
 
         val outer = Path()

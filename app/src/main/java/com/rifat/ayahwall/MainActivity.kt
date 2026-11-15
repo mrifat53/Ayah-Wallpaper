@@ -59,6 +59,7 @@ class MainActivity : Activity() {
         on.text = t("enable")
         on.setTextColor(Theme.col("text"))
         on.isChecked = Prefs.enabled(this)
+        Ui.tintSwitch(on)
         on.setOnCheckedChangeListener { _, checked ->
             sp.edit().putBoolean("enabled", checked).apply()
             if (checked) {
@@ -77,6 +78,7 @@ class MainActivity : Activity() {
             cb.text = name
             cb.setTextColor(Theme.col("text"))
             cb.isChecked = code in Prefs.langs(this)
+            Ui.tintCheck(cb)
             cb.setOnCheckedChangeListener { btn, checked ->
                 val cur = Prefs.langs(this).toMutableSet()
                 if (checked) cur.add(code) else cur.remove(code)
@@ -155,6 +157,7 @@ class MainActivity : Activity() {
         remind.text = t("pt_remind")
         remind.setTextColor(Theme.col("text"))
         remind.isChecked = sp.getBoolean("pt_remind", false)
+        Ui.tintSwitch(remind)
         remind.setOnCheckedChangeListener { _, checked ->
             sp.edit().putBoolean("pt_remind", checked).apply()
             if (checked) {
@@ -215,7 +218,7 @@ class MainActivity : Activity() {
         root.addView(Ui.dropGroup(this, R.drawable.ic_info, t("g_about"), aboutBody, false))
 
         // Ad at the top, away from the bottom bar
-        root.addView(Ads.banner(this), 1)
+        root.addView(Ads.slot(this))
 
         val outer = LinearLayout(this)
         outer.orientation = LinearLayout.VERTICAL

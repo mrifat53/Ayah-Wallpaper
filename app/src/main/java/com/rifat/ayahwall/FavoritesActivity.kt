@@ -33,7 +33,6 @@ class FavoritesActivity : Activity() {
 
         val title = Ui.screenTitle(this, t("favs_title"))
         outer.addView(title)
-        outer.addView(Ads.banner(this))
 
         val scroll = ScrollView(this)
         list = LinearLayout(this)
