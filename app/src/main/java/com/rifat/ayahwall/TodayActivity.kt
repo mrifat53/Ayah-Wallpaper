@@ -108,7 +108,9 @@ class TodayActivity : Activity() {
         preview.scaleType = ImageView.ScaleType.FIT_CENTER
 
         outer.addView(BottomNav.build(this, "home"))
+        Ui.fadeIn(outer)
         setContentView(outer)
+        Theme.applyBars(this)
         render()
         if (AyahSource.current(this) == null) fetchNew()
     }

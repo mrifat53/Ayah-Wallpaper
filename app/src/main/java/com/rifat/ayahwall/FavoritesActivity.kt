@@ -42,7 +42,9 @@ class FavoritesActivity : Activity() {
         outer.addView(scroll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
 
         outer.addView(BottomNav.build(this, "profile"))
+        Ui.fadeIn(outer)
         setContentView(outer)
+        Theme.applyBars(this)
     }
 
     override fun onResume() {

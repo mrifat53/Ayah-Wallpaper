@@ -32,5 +32,6 @@ object Prefs {
     fun catParam(c: Context): Int = sp(c).getInt("cat_param", 1)
     fun style(c: Context): Int = sp(c).getInt("style", 0)
     fun yPercent(c: Context): Int = sp(c).getInt("y_percent", 32)
+    fun bnKey(c: Context): String = sp(c).getString("bn_key", "zakaria") ?: "zakaria"
     fun enabled(c: Context): Boolean = sp(c).getBoolean("enabled", true)
 }

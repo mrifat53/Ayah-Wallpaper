@@ -173,15 +173,39 @@ object AyahSource {
         }
     }
 
+    // Quran.com content through your own proxy. Returns null if the proxy is not set up or fails.
+    private fun fetchProxy(s: Int, a: Int, bnKey: String): Ayah? {
+        val base = Config.PROXY.trimEnd('/')
+        if (base.isBlank()) return null
+        val body = http("$base/ayah?s=$s&a=$a&bn=$bnKey&k=${Config.PROXY_KEY}") ?: return null
+        return try {
+            val o = JSONObject(body)
+            val ar = o.optString("arabic")
+            if (ar.isBlank()) null else Ayah(s, a, ar, o.optString("bangla"), o.optString("english"))
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     private fun fetchOne(c: Context): Ayah? {
         val counts = surahCounts(c) ?: return null
         val langs = Prefs.langs(c)
         val limit = 260 * langs.size
         for (attempt in 0 until 8) {
             val ref = pickRef(c, counts) ?: return null
-            val ar = fetchArabic(ref.first, ref.second) ?: continue
-            val bn = fetchTrans("bengali_zakaria", ref.first, ref.second)
-            val en = fetchTrans("english_saheeh", ref.first, ref.second)
+            val ar: String
+            val bn: String
+            val en: String
+            val px = fetchProxy(ref.first, ref.second, Prefs.bnKey(c))
+            if (px != null) {
+                ar = px.arabic
+                bn = px.bangla
+                en = px.english
+            } else {
+                ar = fetchArabic(ref.first, ref.second) ?: continue
+                bn = fetchTrans("bengali_zakaria", ref.first, ref.second)
+                en = fetchTrans("english_saheeh", ref.first, ref.second)
+            }
             if (bn.isBlank() && en.isBlank()) continue
             if (attempt < 7) {
                 if (marker.containsMatchIn(bn) || marker.containsMatchIn(en)) continue
@@ -249,6 +273,7 @@ object AyahSource {
 
     // Fetches one exact ayah, for reading in order.
     fun ordered(c: Context, s: Int, a: Int): Ayah? {
+        fetchProxy(s, a, Prefs.bnKey(c))?.let { return it }
         val ar = fetchArabic(s, a) ?: return null
         val bn = fetchTrans("bengali_zakaria", s, a)
         val en = fetchTrans("english_saheeh", s, a)

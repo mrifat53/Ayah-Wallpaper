@@ -1,5 +1,7 @@
 package com.rifat.ayahwall
 
+import android.view.View
+import android.os.Build
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
@@ -27,4 +29,21 @@ object Theme {
     fun hex(name: String): String = (if (night) dark else light)[name] ?: "#000000"
 
     fun col(name: String): Int = Color.parseColor(hex(name))
+
+    // Status bar and navigation bar take the app colours, so the app feels like one piece
+    fun applyBars(a: android.app.Activity) {
+        val w = a.window
+        w.statusBarColor = col("bg")
+        w.navigationBarColor = col("card")
+        var flags = w.decorView.systemUiVisibility
+        if (Build.VERSION.SDK_INT >= 23) {
+            flags = if (night) flags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+            else flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        }
+        if (Build.VERSION.SDK_INT >= 26) {
+            flags = if (night) flags and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
+            else flags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+        }
+        w.decorView.systemUiVisibility = flags
+    }
 }

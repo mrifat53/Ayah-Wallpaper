@@ -92,6 +92,14 @@ class MainActivity : Activity() {
             ayahBody.addView(cb)
         }
 
+        ayahBody.addView(Ui.heading(this, t("bn_trans")))
+        val bnKeys = listOf("zakaria", "tayseer", "mujib", "rawai")
+        val bnNames = listOf(t("bn_zakaria"), t("bn_tayseer"), t("bn_mujib"), t("bn_rawai"))
+        ayahBody.addView(spinner(bnNames, bnKeys.indexOf(Prefs.bnKey(this)).coerceAtLeast(0)) { pos ->
+            sp.edit().putString("bn_key", bnKeys[pos]).apply()
+        })
+        ayahBody.addView(hint(t("bn_trans_note")))
+
         ayahBody.addView(Ui.heading(this, t("category")))
         val cats = listOf("all", "surah", "juz", "theme")
         val catNames = listOf(t("cat_all"), t("cat_surah"), t("cat_juz"), t("cat_theme"))
@@ -215,6 +223,7 @@ class MainActivity : Activity() {
         val aboutBody = LinearLayout(this)
         aboutBody.orientation = LinearLayout.VERTICAL
         aboutBody.addView(hint(t("credits")))
+        aboutBody.addView(hint(t("credits2")))
         root.addView(Ui.dropGroup(this, R.drawable.ic_info, t("g_about"), aboutBody, false))
 
         // Ad at the top, away from the bottom bar
@@ -228,6 +237,8 @@ class MainActivity : Activity() {
         scroll.addView(root)
         outer.addView(scroll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
         outer.addView(BottomNav.build(this, "profile"))
+        Ui.fadeIn(outer)
         setContentView(outer)
+        Theme.applyBars(this)
     }
 }

@@ -23,6 +23,8 @@ object Ui {
         bg.setColor(Theme.col("card"))
         bg.cornerRadius = dp(c, 18).toFloat()
         box.background = bg
+        if (!Theme.night) box.elevation = dp(c, 3).toFloat()
+        box.elevation = dp(c, 2).toFloat()
         for (v in views) {
             (v.parent as? ViewGroup)?.removeView(v)
             box.addView(v, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
@@ -40,6 +42,8 @@ object Ui {
         tv.setTextColor(Theme.col("accent"))
         tv.setTypeface(null, Typeface.BOLD)
         tv.setPadding(0, dp(c, 6), 0, dp(c, 8))
+        tv.letterSpacing = 0.03f
+        tv.letterSpacing = 0.04f
         return tv
     }
 
@@ -87,8 +91,13 @@ object Ui {
         val bg = GradientDrawable()
         bg.setColor(Theme.col("accent"))
         bg.cornerRadius = dp(c, 14).toFloat()
-        b.background = bg
-        b.setOnClickListener { onClick() }
+        b.background = android.graphics.drawable.RippleDrawable(
+            android.content.res.ColorStateList.valueOf(Color.argb(70, 255, 255, 255)), bg, roundMask(c, 14)
+        )
+        b.setOnClickListener {
+            it.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+            onClick()
+        }
         return b
     }
 
@@ -102,8 +111,13 @@ object Ui {
         bg.setColor(Color.TRANSPARENT)
         bg.cornerRadius = dp(c, 14).toFloat()
         bg.setStroke(dp(c, 2), Theme.col("accent"))
-        b.background = bg
-        b.setOnClickListener { onClick() }
+        b.background = android.graphics.drawable.RippleDrawable(
+            android.content.res.ColorStateList.valueOf(Color.argb(70, 255, 255, 255)), bg, roundMask(c, 14)
+        )
+        b.setOnClickListener {
+            it.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+            onClick()
+        }
         return b
     }
 
@@ -137,6 +151,7 @@ object Ui {
         bg.cornerRadius = dp(c, 12).toFloat()
         bg.setStroke(dp(c, 1), Theme.col("border"))
         box.background = bg
+        if (!Theme.night) box.elevation = dp(c, 3).toFloat()
         val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         lp.setMargins(0, 0, 0, dp(c, 12))
         box.layoutParams = lp
@@ -230,5 +245,28 @@ object Ui {
     fun tintCheck(cb: android.widget.CheckBox) {
         val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
         cb.buttonTintList = android.content.res.ColorStateList(states, intArrayOf(Theme.col("accent"), Theme.col("muted")))
+    }
+
+    // Cards slide up and fade in one after another when a screen opens
+    fun fadeIn(container: LinearLayout) {
+        for (i in 0 until container.childCount) {
+            val v = container.getChildAt(i)
+            v.alpha = 0f
+            v.translationY = 28f
+            v.animate().alpha(1f).translationY(0f).setStartDelay(i * 70L).setDuration(300L).start()
+        }
+    }
+
+    fun roundMask(c: Context, radiusDp: Int): GradientDrawable {
+        val m = GradientDrawable()
+        m.setColor(Color.WHITE)
+        m.cornerRadius = dp(c, radiusDp).toFloat()
+        return m
+    }
+
+    // Screens fade in softly instead of appearing all at once
+    fun fadeIn(v: View) {
+        v.alpha = 0f
+        v.animate().alpha(1f).setDuration(260).start()
     }
 }

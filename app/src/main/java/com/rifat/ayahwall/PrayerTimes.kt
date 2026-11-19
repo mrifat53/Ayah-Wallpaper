@@ -67,6 +67,14 @@ object PrayerTimes {
     }
 
     // Index of the next prayer. After Isha, the next one is Fajr tomorrow.
+    // Minutes left until the chosen prayer (tomorrow's if it has already passed today)
+    fun minutesUntil(times: List<Pair<String, String>>, idx: Int, now: Calendar): Int {
+        val cur = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
+        var target = minutes(times[idx].second)
+        if (target <= cur) target += 24 * 60
+        return target - cur
+    }
+
     fun nextIndex(times: List<Pair<String, String>>, now: Calendar): Int {
         val cur = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
         for (i in times.indices) {

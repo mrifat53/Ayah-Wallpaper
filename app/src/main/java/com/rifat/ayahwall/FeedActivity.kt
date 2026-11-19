@@ -81,7 +81,9 @@ class FeedActivity : Activity() {
         }
 
         outer.addView(BottomNav.build(this, "feed"))
+        Ui.fadeIn(outer)
         setContentView(outer)
+        Theme.applyBars(this)
         loadMore()
     }
 
@@ -175,7 +177,7 @@ class FeedActivity : Activity() {
         list.addView(row)
 
         // One small banner after every few ayahs, never inside the text itself
-        if (cards % 5 == 0) addBanner()
+        if (cards % 12 == 0) addBanner()
     }
 
     private fun favText(ay: Ayah): String =
