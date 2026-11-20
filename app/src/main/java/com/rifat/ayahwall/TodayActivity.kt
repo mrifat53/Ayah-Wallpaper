@@ -1,5 +1,6 @@
 package com.rifat.ayahwall
 
+import android.graphics.drawable.GradientDrawable
 import android.view.ViewGroup
 import android.graphics.Shader
 import android.graphics.LinearGradient
@@ -115,8 +116,22 @@ class TodayActivity : Activity() {
         if (AyahSource.current(this) == null) fetchNew()
     }
 
+    private val tick = object : Runnable {
+        override fun run() {
+            render()
+            ui.postDelayed(this, 60000)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        ui.removeCallbacks(tick)
+    }
+
     override fun onResume() {
         super.onResume()
+        ui.removeCallbacks(tick)
+        ui.postDelayed(tick, 60000)
         val newLang = Prefs.uiLang(this)
         if (newLang != lang) {
             lang = newLang
@@ -228,19 +243,46 @@ class TodayActivity : Activity() {
         return box
     }
 
-    private fun quickBox(): LinearLayout {
+    private fun tile(icon: Int, label: String, onClick: () -> Unit): LinearLayout {
         val box = LinearLayout(this)
         box.orientation = LinearLayout.VERTICAL
-        box.addView(Ui.item(this, R.drawable.ic_book, t("nav_feed")) {
-            startActivity(Intent(this, FeedActivity::class.java))
-        })
-        box.addView(Ui.item(this, R.drawable.ic_star, t("favs_open")) {
-            startActivity(Intent(this, FavoritesActivity::class.java))
-        })
-        box.addView(Ui.item(this, R.drawable.ic_bookmark, t("khatam")) {
-            startActivity(Intent(this, KhatamActivity::class.java))
-        })
+        box.gravity = Gravity.CENTER
+        box.setPadding(dp(8), dp(16), dp(8), dp(16))
+        val bg = GradientDrawable()
+        bg.setColor(Theme.col("card"))
+        bg.cornerRadius = dp(16).toFloat()
+        bg.setStroke(dp(1), Theme.col("border"))
+        box.background = bg
+        val iv = ImageView(this)
+        iv.setImageResource(icon)
+        iv.setColorFilter(Theme.col("accent"))
+        box.addView(iv, LinearLayout.LayoutParams(dp(26), dp(26)))
+        val tx = TextView(this)
+        tx.text = label
+        tx.textSize = 12f
+        tx.gravity = Gravity.CENTER
+        tx.setTextColor(Theme.col("text"))
+        tx.setPadding(0, dp(8), 0, 0)
+        box.addView(tx)
+        box.setOnClickListener { onClick() }
         return box
+    }
+
+    private fun quickBox(): LinearLayout {
+        val row = LinearLayout(this)
+        row.orientation = LinearLayout.HORIZONTAL
+        fun add(tl: LinearLayout) {
+            val lp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            lp.setMargins(dp(4), 0, dp(4), 0)
+            row.addView(tl, lp)
+        }
+        add(tile(R.drawable.ic_book, t("nav_feed")) { startActivity(Intent(this, FeedActivity::class.java)) })
+        add(tile(R.drawable.ic_star, t("favs_open")) { startActivity(Intent(this, FavoritesActivity::class.java)) })
+        add(tile(R.drawable.ic_bookmark, t("khatam")) { startActivity(Intent(this, KhatamActivity::class.java)) })
+        val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        lp.setMargins(0, 0, 0, dp(14))
+        row.layoutParams = lp
+        return row
     }
 
     // Home: prayer times with a greeting, today's progress, quick links, one tidy ad
@@ -248,7 +290,7 @@ class TodayActivity : Activity() {
         content.removeAllViews()
         content.addView(heroCard())
         content.addView(Ui.card(this, listOf(progressBox())))
-        content.addView(Ui.card(this, listOf(quickBox())))
+        content.addView(quickBox())
         val slot = adSlot ?: Ads.slot(this).also { adSlot = it }
         (slot.parent as? ViewGroup)?.removeView(slot)
         content.addView(slot)
@@ -316,6 +358,25 @@ class TodayActivity : Activity() {
         }.start()
     }
 
+    // Time left to the next prayer, in the app language
+    private fun leftText(times: List<Pair<String, String>>, idx: Int): String {
+        val now = Calendar.getInstance()
+        val nowMin = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
+        val p = times[idx].second.split(":")
+        var target = p[0].toInt() * 60 + p[1].toInt()
+        if (target <= nowMin) target += 24 * 60
+        val diff = target - nowMin
+        val h = diff / 60
+        val m = diff % 60
+        val hh = I18n.digits(h.toString(), lang)
+        val mm = I18n.digits(m.toString(), lang)
+        return when (lang) {
+            "bn" -> if (h > 0) "$hh ঘণ্টা $mm মিনিট বাকি" else "$mm মিনিট বাকি"
+            "ar" -> if (h > 0) "متبقي $hh س $mm د" else "متبقي $mm د"
+            else -> if (h > 0) "${hh}h ${mm}m left" else "${mm}m left"
+        }
+    }
+
     private fun prayerCard(): LinearLayout {
         val box = LinearLayout(this)
         box.orientation = LinearLayout.VERTICAL
@@ -346,6 +407,7 @@ class TodayActivity : Activity() {
         box.addView(tv(dateLine, 12f, "#F3E6C8", false))
         box.addView(tv(t("pt_title"), 14f, "#F3E6C8", false))
         box.addView(tv(t("pt_" + times[idx].first) + " · " + I18n.digits(times[idx].second, lang), 32f, "#FFFFFF", true))
+        box.addView(tv(leftText(times, idx), 14f, "#E8C36A", true))
 
         val arc = PrayerArcView(
             this,

@@ -1,5 +1,7 @@
 package com.rifat.ayahwall
 
+import android.view.ScaleGestureDetector
+import android.view.GestureDetector
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -60,6 +62,7 @@ class FeedActivity : Activity() {
 
         val title = Ui.screenTitle(this, t("feed_short"))
         outer.addView(title)
+        outer.addView(Ui.body(this, t("zoom_hint"), 12f, Theme.hex("muted")).also { it.setPadding(dp(20), 0, dp(20), dp(6)) })
 
         scroll = ScrollView(this)
         list = LinearLayout(this)
@@ -150,6 +153,24 @@ class FeedActivity : Activity() {
         iv.adjustViewBounds = true
         iv.scaleType = ImageView.ScaleType.FIT_CENTER
         Ui.round(iv, 18)
+        val gd = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onDown(e: android.view.MotionEvent): Boolean = true
+            override fun onDoubleTap(e: android.view.MotionEvent): Boolean {
+                openZoom(ay)
+                return true
+            }
+        })
+        val sd = ScaleGestureDetector(this, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            override fun onScaleBegin(d: ScaleGestureDetector): Boolean {
+                openZoom(ay)
+                return false
+            }
+        })
+        iv.setOnTouchListener { _, ev ->
+            gd.onTouchEvent(ev)
+            sd.onTouchEvent(ev)
+            true
+        }
         list.addView(iv, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
 
         val row = LinearLayout(this)
@@ -168,16 +189,21 @@ class FeedActivity : Activity() {
             fav.text = favText(ay)
         }
         cell(Ui.outline(this, t("b_share")) { shareBitmap(bmp) })
-        cell(Ui.primary(this, t("b_lock")) {
-            WallpaperSetter.setLockAsync(this, ay) { ok ->
-                Toast.makeText(this, t(if (ok) "lock_done" else "lock_fail"), Toast.LENGTH_SHORT).show()
-            }
-        })
+        cell(Ui.primary(this, t("b_wall")) { WallpaperSetter.choose(this, ay) })
 
         list.addView(row)
 
         // One small banner after every few ayahs, never inside the text itself
         if (cards % 12 == 0) addBanner()
+    }
+
+    private var zoomOpenedAt = 0L
+
+    private fun openZoom(ay: Ayah) {
+        val now = System.currentTimeMillis()
+        if (now - zoomOpenedAt < 800) return
+        zoomOpenedAt = now
+        startActivity(Intent(this, ZoomActivity::class.java).putExtra("ayah", ay.toJson().toString()))
     }
 
     private fun favText(ay: Ayah): String =

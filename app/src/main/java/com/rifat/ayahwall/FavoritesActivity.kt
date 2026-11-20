@@ -1,5 +1,6 @@
 package com.rifat.ayahwall
 
+import android.widget.ImageView
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
@@ -63,50 +64,44 @@ class FavoritesActivity : Activity() {
             list.addView(tv)
             return
         }
-        val langs = Prefs.langs(this)
+        val w = (resources.displayMetrics.widthPixels - dp(32)).coerceAtMost(700)
+        val h = (w * 1.5f).toInt()
+        val pending = ArrayList<Pair<ImageView, Ayah>>()
         for (a in favs) {
-            val first = when {
-                "ar" in langs -> a.arabic
-                "bn" in langs -> a.bangla
-                else -> a.english
+            val iv = ImageView(this)
+            iv.adjustViewBounds = true
+            iv.scaleType = ImageView.ScaleType.FIT_CENTER
+            iv.minimumHeight = h
+            iv.setBackgroundColor(Theme.col("card"))
+            Ui.round(iv, 18)
+            iv.setOnClickListener {
+                startActivity(Intent(this, ZoomActivity::class.java).putExtra("ayah", a.toJson().toString()))
             }
-            val snippet = if (first.length > 90) first.substring(0, 90) + "…" else first
-            val tv = TextView(this)
-            tv.text = I18n.ref(lang, a.surah, a.ayah) + "\n" + snippet
-            tv.textSize = 14f
-            tv.setTextColor(Theme.col("text"))
-            tv.setPadding(0, dp(10), 0, dp(6))
-            list.addView(tv)
+            list.addView(iv, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            pending.add(Pair(iv, a))
 
             val row = LinearLayout(this)
             row.orientation = LinearLayout.HORIZONTAL
-
-            val show = Button(this)
-            show.text = t("favs_show")
-            show.setOnClickListener {
-                AyahSource.setCurrentFirst(this, a)
-                startActivity(Intent(this, TodayActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
-            }
-            row.addView(show, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-
-            val lock = Button(this)
-            lock.text = t("lock_set")
-            lock.setOnClickListener {
-                WallpaperSetter.setLockAsync(this, a) { ok ->
-                    Toast.makeText(this, t(if (ok) "lock_done" else "lock_fail"), Toast.LENGTH_SHORT).show()
-                }
-            }
-            row.addView(lock, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-
-            val rm = Button(this)
-            rm.text = t("fav_remove")
-            rm.setOnClickListener {
+            row.setPadding(0, dp(6), 0, dp(18))
+            val wall = Ui.primary(this, t("b_wall")) { WallpaperSetter.choose(this, a) }
+            val rm = Ui.outline(this, t("fav_remove")) {
                 AyahSource.toggleFav(this, a)
                 render()
             }
-            row.addView(rm, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-
+            val lp1 = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            lp1.setMargins(dp(4), 0, dp(4), 0)
+            val lp2 = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            lp2.setMargins(dp(4), 0, dp(4), 0)
+            row.addView(wall, lp1)
+            row.addView(rm, lp2)
             list.addView(row)
         }
+        // Cards are drawn one after another in the background so the page opens fast
+        Thread {
+            for ((v, a) in pending) {
+                val bmp = WallpaperPainter.paint(this, a, w, h, 0, true)
+                runOnUiThread { v.setImageBitmap(bmp) }
+            }
+        }.start()
     }
 }

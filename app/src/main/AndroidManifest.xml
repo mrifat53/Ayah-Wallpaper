@@ -44,6 +44,10 @@
             android:name=".KhatamActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ZoomActivity"
+            android:exported="false" />
+
         <receiver
             android:name=".PrayerReceiver"
             android:exported="false" />
