@@ -62,6 +62,20 @@ class FeedActivity : Activity() {
 
         val title = Ui.screenTitle(this, t("feed_short"))
         outer.addView(title)
+        val sizeRow = LinearLayout(this)
+        sizeRow.orientation = LinearLayout.HORIZONTAL
+        sizeRow.setPadding(dp(16), 0, dp(16), dp(8))
+        fun sizeBtn(label: String, delta: Int) {
+            val b = Ui.outline(this, label) {
+                val cur = Prefs.textScale(this)
+                Prefs.sp(this).edit().putInt("text_scale", (cur + delta).coerceIn(70, 150)).apply()
+                recreate()
+            }
+            sizeRow.addView(b, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        }
+        sizeBtn("A−", -10)
+        sizeBtn("A+", 10)
+        outer.addView(sizeRow)
         outer.addView(Ui.body(this, t("zoom_hint"), 12f, Theme.hex("muted")).also { it.setPadding(dp(20), 0, dp(20), dp(6)) })
 
         scroll = ScrollView(this)
@@ -189,6 +203,7 @@ class FeedActivity : Activity() {
             fav.text = favText(ay)
         }
         cell(Ui.outline(this, t("b_share")) { shareBitmap(bmp) })
+        cell(Ui.outline(this, t("b_copy")) { copyText(ay) })
         cell(Ui.primary(this, t("b_wall")) { WallpaperSetter.choose(this, ay) })
 
         list.addView(row)
@@ -204,6 +219,15 @@ class FeedActivity : Activity() {
         if (now - zoomOpenedAt < 800) return
         zoomOpenedAt = now
         startActivity(Intent(this, ZoomActivity::class.java).putExtra("ayah", ay.toJson().toString()))
+    }
+
+    private fun copyText(ay: Ayah) {
+        val text = listOf(ay.arabic, ay.bangla, ay.english)
+            .filter { it.isNotBlank() }
+            .joinToString("\n") + "\n" + I18n.ref("en", ay.surah, ay.ayah)
+        val cm = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+        cm.setPrimaryClip(android.content.ClipData.newPlainText("ayah", text))
+        Toast.makeText(this, t("copied"), Toast.LENGTH_SHORT).show()
     }
 
     private fun favText(ay: Ayah): String =

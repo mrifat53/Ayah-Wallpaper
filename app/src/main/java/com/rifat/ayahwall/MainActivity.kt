@@ -197,6 +197,13 @@ class MainActivity : Activity() {
                 recreate()
             })
         }
+        langBody.addView(Ui.heading(this, t("theme")))
+        langBody.addView(spinner(listOf(t("theme_system"), t("theme_light"), t("theme_dark")), Prefs.themeMode(this)) { pos ->
+            if (pos != Prefs.themeMode(this)) {
+                sp.edit().putInt("theme_mode", pos).apply()
+                recreate()
+            }
+        })
         root.addView(Ui.dropGroup(this, R.drawable.ic_translate, t("g_lang"), langBody, false))
 
         // ---- Saved and plan

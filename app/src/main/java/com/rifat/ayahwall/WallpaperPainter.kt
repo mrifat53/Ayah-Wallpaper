@@ -23,14 +23,8 @@ object WallpaperPainter {
     private val marker = Regex("\\[[0-9\u09E6-\u09EF]+\\]")
 
     // Footnote numbers like [1] are shown small and raised. The words are not changed.
-    private fun styled(text: String): CharSequence {
-        val sb = SpannableStringBuilder(text)
-        for (m in marker.findAll(text)) {
-            sb.setSpan(RelativeSizeSpan(0.6f), m.range.first, m.range.last + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            sb.setSpan(SuperscriptSpan(), m.range.first, m.range.last + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-        return sb
-    }
+    // Footnote numbers like [1] are removed from the picture. The words are not changed.
+    private fun styled(text: String): CharSequence = marker.replace(text, "").replace("  ", " ").trim()
 
     private fun layoutsFor(blocks: List<Block>, w: Int, blockW: Int, scale: Float, tf: Typeface): List<StaticLayout> {
         val out = ArrayList<StaticLayout>()
@@ -40,7 +34,7 @@ object WallpaperPainter {
             p.typeface = tf
             p.textSize = b.size * w * scale
             out.add(
-                StaticLayout.Builder.obtain(styled(b.text), 0, b.text.length, p, blockW)
+                styled(b.text).let { cs -> StaticLayout.Builder.obtain(cs, 0, cs.length, p, blockW) }
                     .setAlignment(Layout.Alignment.ALIGN_CENTER)
                     .setLineSpacing(0f, 1.35f)
                     .build()
@@ -63,7 +57,7 @@ object WallpaperPainter {
         val tf = Mood.typeface(ayah)
         val blockW = (w * 0.84f).toInt()
         val x = w * 0.08f
-        val boost = if (langs.size == 1) 1.2f else 1f
+        val boost = (if (langs.size == 1) 1.2f else 1f) * Prefs.textScale(ctx) / 100f
         val gold = Color.parseColor("#D9B65B")
 
         val blocks = ArrayList<Block>()

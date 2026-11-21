@@ -215,7 +215,7 @@ class TodayActivity : Activity() {
         }
         box.background = BitmapDrawable(resources, heroBg)
         box.addView(prayerCard())
-        Ui.round(box, 18)
+        Ui.round(box, 26)
         val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         lp.setMargins(0, 0, 0, dp(14))
         box.layoutParams = lp
@@ -250,7 +250,7 @@ class TodayActivity : Activity() {
         box.setPadding(dp(8), dp(16), dp(8), dp(16))
         val bg = GradientDrawable()
         bg.setColor(Theme.col("card"))
-        bg.cornerRadius = dp(16).toFloat()
+        bg.cornerRadius = dp(20).toFloat()
         bg.setStroke(dp(1), Theme.col("border"))
         box.background = bg
         val iv = ImageView(this)
@@ -410,7 +410,7 @@ class TodayActivity : Activity() {
         val dateLine = SimpleDateFormat("EEEE, d MMM", Locale.ENGLISH).format(Date())
         box.addView(tv(dateLine, 12f, "#F3E6C8", false))
         box.addView(tv(t("pt_title"), 14f, "#F3E6C8", false))
-        box.addView(tv(t("pt_" + times[idx].first) + " · " + I18n.digits(times[idx].second, lang), 32f, "#FFFFFF", true))
+        box.addView(tv(t("pt_" + times[idx].first) + " · " + I18n.digits(times[idx].second, lang), 36f, "#FFFFFF", true))
         box.addView(tv(leftText(times, idx), 14f, "#E8C36A", true))
 
         val arc = PrayerArcView(

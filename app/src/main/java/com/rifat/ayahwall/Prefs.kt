@@ -37,5 +37,7 @@ object Prefs {
     fun pinA(c: Context): Int = sp(c).getInt("pin_a", 0)
     fun setPin(c: Context, s: Int, a: Int) { sp(c).edit().putInt("pin_s", s).putInt("pin_a", a).apply() }
     fun clearPin(c: Context) { sp(c).edit().putInt("pin_s", 0).putInt("pin_a", 0).apply() }
+    fun textScale(c: Context): Int = sp(c).getInt("text_scale", 100)
+    fun themeMode(c: Context): Int = sp(c).getInt("theme_mode", 0)
     fun enabled(c: Context): Boolean = sp(c).getBoolean("enabled", true)
 }

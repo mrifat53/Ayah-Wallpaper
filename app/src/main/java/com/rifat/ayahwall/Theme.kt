@@ -23,7 +23,11 @@ object Theme {
 
     fun refresh(c: Context) {
         val mode = c.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        night = mode != Configuration.UI_MODE_NIGHT_NO
+        night = when (Prefs.themeMode(c)) {
+            1 -> false          // light, chosen by the user
+            2 -> true           // dark, chosen by the user
+            else -> mode != Configuration.UI_MODE_NIGHT_NO   // follow the phone
+        }
     }
 
     fun hex(name: String): String = (if (night) dark else light)[name] ?: "#000000"
