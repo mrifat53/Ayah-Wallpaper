@@ -202,7 +202,7 @@ class TodayActivity : Activity() {
         if (heroBg == null || heroBg!!.width != w) {
             val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
             val cv = Canvas(bmp)
-            BackgroundGenerator.draw(cv, w, h, 16, 42L)
+            BackgroundGenerator.draw(cv, w, h, 1, 42L)
             // Darken the picture so the text on top is always easy to read
             val shade = Paint()
             shade.shader = LinearGradient(
