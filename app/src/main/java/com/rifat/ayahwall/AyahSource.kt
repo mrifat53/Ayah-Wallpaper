@@ -222,6 +222,14 @@ object AyahSource {
 
     // Gets a new ayah, or an old saved one if there is no internet.
     fun next(c: Context): Ayah? {
+        val ps = Prefs.pinS(c)
+        if (ps > 0) {
+            val pinned = ordered(c, ps, Prefs.pinA(c))
+            if (pinned != null) {
+                addHistory(c, pinned)
+                return pinned
+            }
+        }
         val a = fetchOne(c)
         if (a != null) {
             addHistory(c, a)

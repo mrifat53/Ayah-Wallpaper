@@ -290,6 +290,7 @@ class TodayActivity : Activity() {
         content.removeAllViews()
         content.addView(heroCard())
         content.addView(Ui.card(this, listOf(progressBox())))
+        content.addView(Ui.card(this, listOf(picker())))
         content.addView(quickBox())
         val slot = adSlot ?: Ads.slot(this).also { adSlot = it }
         (slot.parent as? ViewGroup)?.removeView(slot)
@@ -391,7 +392,10 @@ class TodayActivity : Activity() {
                     requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), 77)
                 })
             } else {
+                val pb = android.widget.ProgressBar(this)
+                box.addView(pb, LinearLayout.LayoutParams(dp(36), dp(36)))
                 box.addView(tv(t("loading"), 14f, "#FFFFFF", false))
+                box.addView(btn(t("retry")) { refreshPrayer(today) })
                 refreshPrayer(today)
             }
             return box
@@ -481,12 +485,22 @@ class TodayActivity : Activity() {
                     if (ay == null) {
                         Toast.makeText(this, t("no_internet"), Toast.LENGTH_SHORT).show()
                     } else {
+                        Prefs.setPin(this, pickS, pickA)
                         AyahSource.setCurrentFirst(this, ay)
+                        Toast.makeText(this, t("pick_saved"), Toast.LENGTH_SHORT).show()
                         render()
                     }
                 }
             }.start()
         })
+        box.addView(btn(t("pick_auto")) {
+            Prefs.clearPin(this)
+            Toast.makeText(this, t("pick_auto"), Toast.LENGTH_SHORT).show()
+            render()
+        })
+        if (Prefs.pinS(this) > 0) {
+            box.addView(tv(t("pick_pinned") + ": " + I18n.ref(lang, Prefs.pinS(this), Prefs.pinA(this)), 12f, "#8B949E", false))
+        }
         return box
     }
 

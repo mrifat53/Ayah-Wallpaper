@@ -33,5 +33,9 @@ object Prefs {
     fun style(c: Context): Int = sp(c).getInt("style", 0)
     fun yPercent(c: Context): Int = sp(c).getInt("y_percent", 32)
     fun bnKey(c: Context): String = sp(c).getString("bn_key", "zakaria") ?: "zakaria"
+    fun pinS(c: Context): Int = sp(c).getInt("pin_s", 0)
+    fun pinA(c: Context): Int = sp(c).getInt("pin_a", 0)
+    fun setPin(c: Context, s: Int, a: Int) { sp(c).edit().putInt("pin_s", s).putInt("pin_a", a).apply() }
+    fun clearPin(c: Context) { sp(c).edit().putInt("pin_s", 0).putInt("pin_a", 0).apply() }
     fun enabled(c: Context): Boolean = sp(c).getBoolean("enabled", true)
 }
